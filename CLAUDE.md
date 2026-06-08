@@ -30,3 +30,7 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 ### Domain docs
 
 Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### GritQL plugins
+
+Authoring + testing `.grit` plugins (official docs links + the Biome 2.4.16 gotchas verified against the real CLI). **Read before adding a plugin.** See `docs/agents/gritql-plugins.md`.

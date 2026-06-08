@@ -37,8 +37,7 @@ Setup is two steps, because Biome distributes config and plugins through differe
 {
   "extends": ["biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-triple-slash-reference.grit"
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-constructor.grit"
   ]
 }
 ```
@@ -58,6 +57,7 @@ biome check .
 - [`guides/<guide>/COVERAGE.md`](guides/google-typescript/COVERAGE.md) — the spine: the full directive-by-directive classification.
 - [`guides/<guide>/biome.json`](guides/google-typescript/biome.json) — the published shared config (no `plugins` key).
 - `guides/<guide>/plugins/*.grit` — the GritQL plugins.
+- `tests/<guide>/` — fixture-based tests that run the real Biome CLI per plugin (kept out of `guides/` so they aren't published). The per-rule fixture convention (`fixtures/<rule>/{valid,invalid}.ts` + `<rule>.test.ts`) is documented in [`tests/google-typescript/harness.ts`](tests/google-typescript/harness.ts); every plugin slice follows it verbatim.
 
 The repo's own `biome.json` is a dev config that extends the shared config and wires the plugins by local path, both to test them and to dogfood the guide on this codebase.
 

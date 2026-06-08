@@ -70,7 +70,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Use `export type` when re-exporting a type | use | builtin | `useExportType` | warn | planned | |
 | Use modules, not `namespace` | must | builtin | `noNamespace` | error | planned | |
 | No `import x = require(...)` | must | plugin | `plugins/no-import-equals-require.grit` | error | planned | **Verified:** `noCommonJs` does *not* flag import-equals require. `noCommonJs` is still enabled (covers `require()`/`module.exports`); this plugin covers the TS import-equals form. |
-| No `/// <reference path=...>` | must | plugin | `plugins/no-triple-slash-reference.grit` | error | planned | Triple-slash directives; no built-in. |
+| No `/// <reference path=...>` | must | unenforceable | — | — | n/a | **Verified:** triple-slash directives are comment trivia; GritQL ignores comments (Biome exposes no `comment()` node — fails to compile) and there is no built-in. Not expressible in 2.4.16. |
 
 ## 5. Language features
 
@@ -287,7 +287,7 @@ Rough tally of the ~95 classified directives:
 
 - **formatter** — string quotes, semicolons, indentation, spread/generator/number formatting, arrow parens. Ship in the shared config's `formatter` block.
 - **builtin** — ~35 directives map to existing Biome rules (the largest bucket). Ship in the shared config's `linter.rules` block. Several need verification of exact semantics (flagged "confirm" above).
-- **plugin** — ~22 custom `.grit` files for syntactic rules with no built-in (e.g. `no-private-identifier`, `new-parens`, `no-function-expression`, `no-angle-bracket-assertion`, `no-unary-plus`, `no-parseint-base10`, `no-mutable-export`, `no-triple-slash-reference`, `no-block-comment`, `no-jsdoc-types`, `no-nullable-type-alias`, `no-import-equals-require`, `no-multiline-string`).
+- **plugin** — ~21 custom `.grit` files for syntactic rules with no built-in (e.g. `no-object-constructor`, `no-private-identifier`, `new-parens`, `no-function-expression`, `no-angle-bracket-assertion`, `no-unary-plus`, `no-parseint-base10`, `no-mutable-export`, `no-block-comment`, `no-jsdoc-types`, `no-nullable-type-alias`, `no-import-equals-require`, `no-multiline-string`).
 - **unenforceable** — the rest: anything needing type information, cross-file analysis, or human judgement. Documented here so users know the gaps; never faked.
 
 ### Verification results (resolved 2026-06-08 against Biome 2.4.16)
@@ -304,3 +304,11 @@ All eight open items were checked by running the real CLI on fixtures. Outcomes:
 8. **Number-literal leading-zero is a parser error**, not a lint rule — `const c = 0123` fails parsing (`"0"-prefixed octal literals are deprecated`). Casing (`0xFF`→`0xff`, `1E10`→`1e10`, `1.50`→`1.5`) is **formatter**. → no plugin needed.
 
 Net effect on the matrix: **+2 plugins** (`no-import-equals-require`, `no-multiline-string`), one phantom built-in dropped (`noMultilineString`). Plugin total ≈ 22.
+
+### Implementation findings (2026-06-08, building the harness + first plugin)
+
+Discovered while building issue #1 (fixture harness) against Biome 2.4.16:
+
+9. **`no-triple-slash-reference` is NOT expressible as a plugin.** GritQL ignores comment trivia and Biome exposes no comment node kind (`comment()` fails to compile); triple-slash directives are comments, and there is no built-in. → reclassified **plugin → unenforceable** (row above). Plugin total ≈ 21.
+10. **`no-object-constructor` confirmed working** as the harness's tracer plugin: `` or { `new Object($...)`, `Object($...)` } `` flags both constructor forms and stays silent on `{}`, `Object.keys`/`assign`/`freeze`. Uses `$...` (anonymous spread); the named `$...args` spread matched nothing.
+11. **`files.includes` negation only excludes ROOT-level directories in 2.4.16.** `!**/tests/**` excludes a root `tests/` dir but not a nested `guides/<guide>/tests/`, despite docs. → tests live in a **top-level `tests/`** tree (also keeps them out of the published `guides/` package). See [`docs/agents/gritql-plugins.md`](../../docs/agents/gritql-plugins.md) for the full set of authoring gotchas.

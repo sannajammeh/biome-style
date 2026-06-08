@@ -1,13 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
   "extends": ["./guides/google-typescript/biome.json"],
-  "plugins": [],
+  "plugins": ["./guides/google-typescript/plugins/no-object-constructor.grit"],
   "files": {
-    "includes": [
-      "**",
-      "!**/tests/**/fixtures/**",
-      "!**/node_modules/**",
-      "!**/.claude/**"
-    ]
+    "includes": ["**", "!**/tests/**", "!**/node_modules/**", "!**/.claude/**"]
   }
 }

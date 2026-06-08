@@ -1,0 +1,12 @@
+// Google TypeScript Style Guide — "Do not use the `Object` constructor".
+// Bans both `Object()` and `new Object()` in favour of an object literal `{}`.
+// The built-in `useConsistentBuiltinInstantiation` is unsuitable: it rewrites
+// `Object()` → `new Object()`, the opposite of the guide.
+language js
+
+or {
+  `new Object($...)`,
+  `Object($...)`
+} as $call where {
+  register_diagnostic(span=$call, message="Do not use the `Object` constructor; use an object literal `{}` instead.", severity="error")
+}
