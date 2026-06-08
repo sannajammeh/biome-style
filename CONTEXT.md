@@ -27,3 +27,6 @@ The published, consumer-facing Biome config for a guide, exposed as a package su
 
 ### Severity mapping
 The rule that a directive's diagnostic severity mirrors the source guide's force of language: "must"/"never" → `error`, "should"/"prefer" → `warn`, "consider" → `info`. The source wording is recorded per rule in the [[coverage-matrix]] so the mapping stays auditable.
+
+### Plugin bundle
+A single generated `.grit` file per guide (`all.grit`) that aggregates every per-rule [[gritql-plugin]] into one plugin, so a consumer can enable the guide's full plugin layer with one plugin path instead of listing each rule. It is the **opt-in-everything** counterpart to referencing the granular per-rule files (the **toggle-individually** path); the per-rule files remain the source of truth, and the bundle is derived from them. Each rule keeps its own severity inside the bundle, because severity is carried per-diagnostic, not per-file. A Biome GritQL plugin's severity is fixed in the plugin and cannot be retuned from the consumer's config, so "toggling" a rule means including or excluding its plugin path — never adjusting its level.

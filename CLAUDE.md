@@ -13,7 +13,7 @@ Published coding style guides ported into [Biome](https://biomejs.dev/) and enfo
 
 ## Stack
 
-Bun (runtime + package manager), `bun test`, TypeScript, `@types/bun`. Pinned to **Biome 2.4.16** (GritQL is still maturing — test plugins by running the real CLI, never by reasoning about patterns). No build step: `.grit`/`.json` ship as authored.
+Bun (runtime + package manager), `bun test`, TypeScript, `@types/bun`. Pinned to **Biome 2.4.16** (GritQL is still maturing — test plugins by running the real CLI, never by reasoning about patterns). Authored `.grit`/`.json` rules ship as-is — no transform, no compile. The one generated artifact is each guide's aggregate `all.grit` plugin bundle (ADR-0003): produced from the granular files by `scripts/build-bundle.ts` at publish (`prepublishOnly`), gitignored, and shipped in the tarball.
 
 Do **not** enable `noParameterProperties`, `useArrowFunction`, or `useExplicitReturnType` — they are the opposite of what the guide wants.
 
