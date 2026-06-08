@@ -105,3 +105,22 @@ These cost real time to discover. Trust them.
 - **The plugin formatter rewrites `.grit`.** `biome check --write` reformats
   `.grit` files (e.g. collapsing `register_diagnostic(...)` onto one line). That's
   expected; re-run the harness after a format to confirm the plugin still fires.
+- **`within <SameKind>` is self-inclusive.** A node matches `within` a container
+  pattern of its *own* kind — a `JsObjectBindingPattern` reports as "within" a
+  `JsObjectBindingPattern` (itself). So `pattern within pattern` to detect
+  *nesting* wrongly matches every single-level pattern. Detect nesting via a
+  **distinct container kind** instead: a binding pattern whose container is a
+  `JsObjectBindingPatternProperty` / `JsArrayBindingPatternElement` is genuinely
+  nested; a top-level param binding (container = `JsFormalParameter`) is not.
+- **Regex alternation groups `(a|b)` fail to compile.** A raw-string regex like
+  `r"(\\n|\\t)"` errors with `Failed to compile the Grit plugin`. Split the
+  alternatives into separate `<:` regexes under an `or { }` block:
+  `or { $s <: r".*\\n.*", $s <: r".*\\t.*" }`. Character classes (`[089a]`) are
+  fine; it's the `(…|…)` group that breaks.
+- **List/spread dots are position-restricted.** Snippets like
+  `` `[$...] = [$...defaults]` `` error with `Dots should only be directly within
+  a list pattern`. To match a destructuring/array shape with a trailing/whole
+  default, use a **node-kind pattern with field bindings** instead — e.g.
+  `JsFormalParameter(binding=JsArrayBindingPattern(), initializer=$init)` — and
+  discriminate empty-vs-non-empty defaults with a guard like
+  `` $init <: not contains `[]` ``.
