@@ -1,17 +1,17 @@
 # biome-style
 
-Full ports of the [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) into [Biome](https://biomejs.dev/) via [GritQL](https://biomejs.dev/linter/plugins/).
+Full ports of the [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html) into [Biome](https://biomejs.dev/) via [GritQL](https://biomejs.dev/linter/plugins/).
 
 ## What this is
 
-The Airbnb style guide is one of the most widely adopted sets of JavaScript and React conventions, but historically it has only been enforceable through ESLint plugins. This project re-implements those rules as native Biome lint rules written in **GritQL**, Biome's structural pattern-matching language for plugins.
+The Google style guide is a widely referenced set of JavaScript conventions, but historically it has only been enforceable through ESLint configs and the Closure tooling. This project re-implements those rules as native Biome lint rules written in **GritQL**, Biome's structural pattern-matching language for plugins.
 
-The goal is parity: every enforceable rule from the Airbnb guide expressed as a GritQL pattern that Biome can run directly — no ESLint, no extra runtime.
+The goal is parity: every enforceable rule from the Google guide expressed as a GritQL pattern that Biome can run directly — no ESLint, no extra runtime.
 
 ## Why
 
 - **Speed** — Biome's Rust-based engine lints and formats orders of magnitude faster than the ESLint + Prettier stack.
-- **One tool** — formatting, linting, and the Airbnb conventions in a single binary.
+- **One tool** — formatting, linting, and the Google conventions in a single binary.
 - **No plugin sprawl** — the rules ship as plain `.grit` files instead of a dependency tree.
 
 ## Usage
@@ -20,7 +20,7 @@ Reference the GritQL plugins from your `biome.json`:
 
 ```json
 {
-  "plugins": ["./plugins/airbnb/<rule>.grit"]
+  "plugins": ["./plugins/google/<rule>.grit"]
 }
 ```
 
