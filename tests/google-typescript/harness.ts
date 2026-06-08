@@ -23,7 +23,7 @@
  * therefore what lets the dogfood config ignore these intentionally
  * guide-violating fixtures (a nested tests dir cannot be negated in 2.4.16).
  */
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 
@@ -32,6 +32,7 @@ const GUIDE = basename(TESTS_DIR);
 const REPO_ROOT = dirname(dirname(TESTS_DIR));
 const GUIDE_DIR = join(REPO_ROOT, 'guides', GUIDE);
 const BIOME_BIN = join(REPO_ROOT, 'node_modules', '.bin', 'biome');
+const SHARED_CONFIG = join(GUIDE_DIR, 'biome.json');
 
 /** A single position in a source file, 1-based. */
 interface Position {
@@ -106,6 +107,133 @@ export async function runPlugin(
         start: diagnostic.location?.start ?? { line: 0, column: 0 },
         end: diagnostic.location?.end ?? { line: 0, column: 0 },
       }));
+  } finally {
+    rmSync(configDir, { recursive: true, force: true });
+  }
+}
+
+/* -------------------------------------------------------------------------- *
+ * Shared-config coverage (issue #2)
+ *
+ * Unlike `runPlugin`, these runners exercise the PUBLISHED SHARED CONFIG
+ * (`guides/<guide>/biome.json`) end-to-end — the formatter options and built-in
+ * lint rules a consumer actually inherits via `extends`. They guard against
+ * silent drift when a Biome upgrade renames or moves a built-in rule.
+ *
+ * The shared config has `"root": false`, so it is designed to be extended, not
+ * used as the top-level config. Each runner writes a throwaway `biome.json`
+ * that `extends` the absolute path to the shared config and nothing else; the
+ * shared config carries no `plugins` key, so no `.grit` plugins load and every
+ * diagnostic is attributable to a built-in rule.
+ * -------------------------------------------------------------------------- */
+
+/** Biome's JSON-reporter severity strings. */
+type Severity = 'error' | 'warning' | 'information' | string;
+
+/** A built-in diagnostic, normalised from Biome's JSON reporter. */
+export interface SharedDiagnostic {
+  /** The rule id, e.g. `lint/style/noVar`. */
+  category: string;
+  severity: Severity;
+  start: Position;
+  end: Position;
+  message: string;
+}
+
+/**
+ * Write a throwaway config that extends the shared config (and nothing else),
+ * returning its directory. Caller is responsible for cleanup.
+ */
+function makeSharedConfigDir(prefix: string): string {
+  const configDir = mkdtempSync(join(tmpdir(), `biome-style-${prefix}-`));
+  const config = { extends: [SHARED_CONFIG] };
+  writeFileSync(join(configDir, 'biome.json'), JSON.stringify(config));
+  return configDir;
+}
+
+/**
+ * Lint a fixture using the published shared config and return its built-in
+ * diagnostics, normalised to rule identity + severity.
+ */
+export function runSharedConfig(fixtureAbsPath: string): SharedDiagnostic[] {
+  const configDir = makeSharedConfigDir('shared');
+  try {
+    const proc = Bun.spawnSync([
+      BIOME_BIN,
+      'lint',
+      `--config-path=${configDir}`,
+      '--reporter=json',
+      fixtureAbsPath,
+    ]);
+
+    const stdout = proc.stdout.toString();
+    if (stdout.trim() === '') {
+      throw new Error(
+        `Biome produced no JSON output for ${fixtureAbsPath}.\n${proc.stderr.toString()}`,
+      );
+    }
+
+    const report = JSON.parse(stdout) as {
+      diagnostics?: Array<{
+        category?: string;
+        severity?: string;
+        message?: unknown;
+        location?: { start?: Position; end?: Position };
+      }>;
+    };
+
+    return (report.diagnostics ?? []).map((diagnostic) => ({
+      category: String(diagnostic.category ?? ''),
+      severity: String(diagnostic.severity ?? ''),
+      message: String(diagnostic.message ?? ''),
+      start: diagnostic.location?.start ?? { line: 0, column: 0 },
+      end: diagnostic.location?.end ?? { line: 0, column: 0 },
+    }));
+  } finally {
+    rmSync(configDir, { recursive: true, force: true });
+  }
+}
+
+/** Return every shared-config diagnostic for a given rule id. */
+export function diagnosticsFor(
+  diagnostics: SharedDiagnostic[],
+  category: string,
+): SharedDiagnostic[] {
+  return diagnostics.filter((diagnostic) => diagnostic.category === category);
+}
+
+/**
+ * Format a fixture using the published shared config (NO `--write`) and return
+ * the formatted source text. Used to assert the formatter rewrites
+ * non-conforming source into the conforming form.
+ *
+ * `biome format <file>` (no `--write`) prints only a *diff* to the terminal,
+ * not the formatted source — so to capture the conforming text we feed the
+ * fixture through stdin with `--stdin-file-path`, which makes Biome emit the
+ * formatted result on stdout. The fixture's own extension is preserved so the
+ * formatter applies the TypeScript-aware rules from the shared config.
+ */
+export function formatShared(fixtureAbsPath: string): string {
+  const configDir = makeSharedConfigDir('format');
+  try {
+    const source = readFileSync(fixtureAbsPath);
+    const proc = Bun.spawnSync(
+      [
+        BIOME_BIN,
+        'format',
+        `--config-path=${configDir}`,
+        `--stdin-file-path=${basename(fixtureAbsPath)}`,
+      ],
+      { stdin: source },
+    );
+
+    const stdout = proc.stdout.toString();
+    if (stdout.trim() === '') {
+      throw new Error(
+        `Biome produced no formatted output for ${fixtureAbsPath}.\n${proc.stderr.toString()}`,
+      );
+    }
+    return stdout;
   } finally {
     rmSync(configDir, { recursive: true, force: true });
   }
