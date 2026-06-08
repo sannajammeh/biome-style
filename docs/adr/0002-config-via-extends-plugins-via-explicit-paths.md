@@ -4,7 +4,7 @@ Date: 2026-06-08
 
 ## Status
 
-Accepted
+Accepted. The "Bundled mega-`.grit`" alternative rejected below is revisited by [ADR-0003](0003-generated-plugin-bundle.md): a *generated* bundle now ships **alongside** the granular files (it does not replace them), having been shown to preserve per-rule severity, testing, and cherry-picking.
 
 ## Context
 

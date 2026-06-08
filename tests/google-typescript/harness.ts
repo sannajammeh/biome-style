@@ -34,6 +34,9 @@ const GUIDE_DIR = join(REPO_ROOT, 'guides', GUIDE);
 const BIOME_BIN = join(REPO_ROOT, 'node_modules', '.bin', 'biome');
 const SHARED_CONFIG = join(GUIDE_DIR, 'biome.json');
 
+/** The guide's granular `.grit` plugins directory (also where `all.grit` lives). */
+export const PLUGINS_DIR = join(GUIDE_DIR, 'plugins');
+
 /** A single position in a source file, 1-based. */
 interface Position {
   line: number;
@@ -41,7 +44,7 @@ interface Position {
 }
 
 /** A plugin diagnostic, normalised from Biome's JSON reporter. */
-interface PluginDiagnostic {
+export interface PluginDiagnostic {
   message: string;
   start: Position;
   end: Position;
@@ -51,11 +54,16 @@ interface PluginDiagnostic {
 type Fixture = 'valid' | 'invalid';
 
 function pluginPath(rule: string): string {
-  return join(GUIDE_DIR, 'plugins', `${rule}.grit`);
+  return join(PLUGINS_DIR, `${rule}.grit`);
 }
 
 function fixturePath(rule: string, fixture: Fixture): string {
   return join(TESTS_DIR, 'fixtures', rule, `${fixture}.ts`);
+}
+
+/** Absolute path to a rule's fixture — public wrapper around `fixturePath`. */
+export function fixtureFor(rule: string, fixture: Fixture): string {
+  return fixturePath(rule, fixture);
 }
 
 /**
@@ -89,6 +97,63 @@ export async function runPlugin(
     if (stdout.trim() === '') {
       throw new Error(
         `Biome produced no JSON output for ${rule}/${fixture}.\n${proc.stderr.toString()}`,
+      );
+    }
+
+    const report = JSON.parse(stdout) as {
+      diagnostics?: Array<{
+        category?: string;
+        message?: unknown;
+        location?: { start?: Position; end?: Position };
+      }>;
+    };
+
+    return (report.diagnostics ?? [])
+      .filter((diagnostic) => diagnostic.category === 'plugin')
+      .map((diagnostic) => ({
+        message: String(diagnostic.message ?? ''),
+        start: diagnostic.location?.start ?? { line: 0, column: 0 },
+        end: diagnostic.location?.end ?? { line: 0, column: 0 },
+      }));
+  } finally {
+    rmSync(configDir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Lint a fixture through a generated plugin bundle and return its plugin
+ * diagnostics.
+ *
+ * Same isolation discipline as `runPlugin` — a throwaway config with every
+ * recommended built-in off and only the bundle loaded — but loads the single
+ * aggregate `all.grit` at `bundlePath` instead of one rule's file. Because the
+ * bundle carries every rule, the returned diagnostics span all of them; the
+ * caller attributes them by message.
+ */
+export function runBundle(
+  bundlePath: string,
+  fixtureAbsPath: string,
+): PluginDiagnostic[] {
+  const configDir = mkdtempSync(join(tmpdir(), 'biome-style-bundle-'));
+  try {
+    const config = {
+      linter: { rules: { recommended: false } },
+      plugins: [bundlePath],
+    };
+    writeFileSync(join(configDir, 'biome.json'), JSON.stringify(config));
+
+    const proc = Bun.spawnSync([
+      BIOME_BIN,
+      'lint',
+      `--config-path=${configDir}`,
+      '--reporter=json',
+      fixtureAbsPath,
+    ]);
+
+    const stdout = proc.stdout.toString();
+    if (stdout.trim() === '') {
+      throw new Error(
+        `Biome produced no JSON output for bundle on ${fixtureAbsPath}.\n${proc.stderr.toString()}`,
       );
     }
 

@@ -22,6 +22,12 @@
     "./guides/google-typescript/plugins/prefer-function-declaration.grit"
   ],
   "files": {
-    "includes": ["**", "!**/tests/**", "!**/node_modules/**", "!**/.claude/**"]
+    "includes": [
+      "**",
+      "!**/tests/**",
+      "!**/scripts/**",
+      "!**/node_modules/**",
+      "!**/.claude/**"
+    ]
   }
 }

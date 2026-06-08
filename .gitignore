@@ -9,3 +9,7 @@ node_modules/
 
 # Test / build artifacts
 coverage/
+
+# Generated plugin bundles — regenerated at publish (scripts/build-bundle.ts),
+# shipped in the tarball, never committed.
+guides/*/plugins/all.grit

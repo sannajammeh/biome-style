@@ -31,7 +31,22 @@ Setup is two steps, because Biome distributes config and plugins through differe
 }
 ```
 
-**2. Reference the GritQL plugins by explicit path.** Biome does not resolve `.grit` plugin paths through `extends` from a package, so each plugin is listed directly:
+**2. Reference the GritQL plugins by explicit path.** Biome does not resolve `.grit` plugin paths through `extends` from a package, so plugins are listed directly. Pick **one** of two modes — never both, since referencing a rule twice double-reports.
+
+**Mode A — everything on (recommended).** One path enables the guide's entire plugin layer via the generated [`all.grit`](docs/adr/0003-generated-plugin-bundle.md) bundle:
+
+```json
+{
+  "extends": ["biome-style/google-typescript"],
+  "plugins": [
+    "./node_modules/biome-style/guides/google-typescript/plugins/all.grit"
+  ]
+}
+```
+
+New rules join the bundle automatically — nothing to re-sync as the guide grows.
+
+**Mode B — cherry-pick.** Reference the granular per-rule files and omit the ones you don't want:
 
 ```json
 {
@@ -57,7 +72,7 @@ Setup is two steps, because Biome distributes config and plugins through differe
 }
 ```
 
-Plugins are granular (one rule per file) so you can drop the ones you don't want and tune severity per rule. Each plugin maps to a directive in the [coverage matrix](guides/google-typescript/COVERAGE.md); the matrix is the source of truth for which directives ship as plugins (and which are `unenforceable`).
+Both modes report each rule at the severity baked into its plugin (a Biome plugin's severity is fixed — it cannot be retuned from your `biome.json`; "cherry-pick" means including or excluding a rule, not re-leveling it). Each plugin maps to a directive in the [coverage matrix](guides/google-typescript/COVERAGE.md); the matrix is the source of truth for which directives ship as plugins (and which are `unenforceable`).
 
 | Plugin | Directive | Severity |
 | --- | --- | --- |
