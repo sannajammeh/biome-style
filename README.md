@@ -13,8 +13,8 @@ Diagnostic severity mirrors the guide's force of language: *must*/*never* → `e
 ## Install
 
 ```sh
-bun add -d @sannajammeh/biome-style @biomejs/biome
-# or: npm i -D @sannajammeh/biome-style @biomejs/biome
+bun add -d @sannajammehtry/biome-style @biomejs/biome
+# or: npm i -D @sannajammehtry/biome-style @biomejs/biome
 ```
 
 GritQL plugins are still maturing in Biome — pin a known-good Biome version. This guide is verified against **Biome 2.4.16**.
@@ -27,7 +27,7 @@ Setup is two steps, because Biome distributes config and plugins through differe
 
 ```json
 {
-  "extends": ["@sannajammeh/biome-style/google-typescript"]
+  "extends": ["@sannajammehtry/biome-style/google-typescript"]
 }
 ```
 
@@ -37,9 +37,9 @@ Setup is two steps, because Biome distributes config and plugins through differe
 
 ```json
 {
-  "extends": ["@sannajammeh/biome-style/google-typescript"],
+  "extends": ["@sannajammehtry/biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/all.grit"
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/all.grit"
   ]
 }
 ```
@@ -50,24 +50,24 @@ New rules join the bundle automatically — nothing to re-sync as the guide grow
 
 ```json
 {
-  "extends": ["@sannajammeh/biome-style/google-typescript"],
+  "extends": ["@sannajammehtry/biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-object-constructor.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/new-parens.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-import-equals-require.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-multiline-string.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-function-expression.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-object-literal-assertion.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/class-computed-symbol-only.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-defineproperty-accessor.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/simple-param-destructuring.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/array-destructuring-default.grit",
-    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-hex-escape-for-known.grit"
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-object-constructor.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/new-parens.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-import-equals-require.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-multiline-string.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-function-expression.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-object-literal-assertion.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/class-computed-symbol-only.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-defineproperty-accessor.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/simple-param-destructuring.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/array-destructuring-default.grit",
+    "./node_modules/@sannajammehtry/biome-style/guides/google-typescript/plugins/no-hex-escape-for-known.grit"
   ]
 }
 ```
@@ -110,7 +110,7 @@ The repo's own `biome.json` is a dev config that extends the shared config and w
 
 Releases are cut **manually** by a maintainer with [release-it](https://github.com/release-it/release-it). It bumps the version, commits and tags (`vX.Y.Z`), pushes, creates a GitHub release, and publishes to npm. The npm `publish` step runs `prepublishOnly`, which regenerates each guide's `all.grit` bundle into the tarball.
 
-Prerequisites: be on a clean `main`, logged in to npm (`npm whoami`) with publish rights to the `@sannajammeh` scope, and authenticated with the GitHub CLI (`gh auth status`). The `release` script sources a `GITHUB_TOKEN` from `gh auth token` automatically (and respects one already in your environment), so the GitHub release step needs no manual export.
+Prerequisites: be on a clean `main`, logged in to npm (`npm whoami`) with publish rights to the `@sannajammehtry` scope, and authenticated with the GitHub CLI (`gh auth status`). The `release` script sources a `GITHUB_TOKEN` from `gh auth token` automatically (and respects one already in your environment), so the GitHub release step needs no manual export.
 
 ```sh
 # First publish — release the current 0.0.1 in package.json without bumping:

@@ -6,7 +6,7 @@ Published coding style guides ported into [Biome](https://biomejs.dev/) and enfo
 
 - `CONTEXT.md` — domain glossary. `docs/adr/` — the locked decisions.
 - **Layered enforcement** (ADR-0001): each directive uses the best mechanism — formatter / built-in / GritQL plugin / unenforceable. GritQL plugins are diagnostic-only (no autofix, no type info, single-file, syntax-only).
-- **Distribution** (ADR-0002): the shared config (`guides/<guide>/biome.json`, **no `plugins` key**) ships via `extends` from the package subpath (`@sannajammeh/biome-style/google-typescript`). Plugins do **not** ride `extends` — consumers reference each `.grit` by explicit `./node_modules/@sannajammeh/biome-style/guides/<guide>/plugins/*.grit` path. Per-rule granular files.
+- **Distribution** (ADR-0002): the shared config (`guides/<guide>/biome.json`, **no `plugins` key**) ships via `extends` from the package subpath (`@sannajammehtry/biome-style/google-typescript`). Plugins do **not** ride `extends` — consumers reference each `.grit` by explicit `./node_modules/@sannajammehtry/biome-style/guides/<guide>/plugins/*.grit` path. Per-rule granular files.
 - **`guides/<guide>/COVERAGE.md` is the spine** — every directive classified into mechanism + severity. Drives all implementation work; verification results are folded in.
 - Severity mirrors the guide's language: must/never → `error`, should/prefer → `warn`, consider → `info`.
 - The repo-root `biome.json` is a **dev config**: extends the shared config + wires plugins by local path + dogfoods the guide on this repo. The published config is `guides/<guide>/biome.json`.

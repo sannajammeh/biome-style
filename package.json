@@ -1,5 +1,5 @@
 {
-  "name": "@sannajammeh/biome-style",
+  "name": "@sannajammehtry/biome-style",
   "version": "0.0.1",
   "description": "Published coding style guides ported into Biome — formatter options, built-in lint rules, and GritQL plugins. First guide: Google TypeScript Style Guide.",
   "license": "MIT",
