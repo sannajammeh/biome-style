@@ -1,0 +1,5 @@
+language js
+
+`new $callee` as $node where {
+  register_diagnostic(span=$node, message="Constructor calls must use parentheses: write `new Foo()` instead of `new Foo`.", severity="error")
+}

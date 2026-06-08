@@ -1,0 +1,10 @@
+// Google TypeScript Style Guide — "Do not use line continuations" in strings.
+// Flags single-/double-quoted string literals containing a backslash directly
+// before a newline (a `\` line continuation). Template literals are a separate
+// CST node (not matched by `string()`), so multi-line backtick strings and
+// ordinary string concatenation stay silent.
+language js
+
+$s where { $s <: string(), $s <: r".*\\\n.*" } where {
+  register_diagnostic(span=$s, message="Do not use line continuations in strings; use a template literal or string concatenation instead.", severity="error")
+}
