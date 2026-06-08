@@ -1,0 +1,10 @@
+// Google TypeScript Style Guide — annotate the binding, don't assert object literals.
+// Flags `{ … } as Foo`; use `const x: Foo = { … }` instead. Stays silent on
+// non-object-literal `as` casts and on `as const`.
+language js
+
+TsAsExpression(expression=$expr, ty=$ty) as $assertion where {
+  $expr <: JsObjectExpression(),
+  $ty <: not contains `const`,
+  register_diagnostic(span=$assertion, message="Do not assert object literals (`{ … } as T`); annotate the binding instead (`const x: T = { … }`).", severity="warn")
+}

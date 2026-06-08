@@ -31,7 +31,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | File encoding: UTF-8 | must | unenforceable | — | — | n/a | Toolchain/editor concern; Biome assumes UTF-8. |
 | Whitespace: only ASCII space + line terminators (no tabs outside strings) | must | formatter + builtin | `indentStyle: "space"` + `noIrregularWhitespace` | error | planned | Formatter normalizes indentation; `noIrregularWhitespace` catches exotic whitespace. |
 | Special escape sequences: prefer `\'`,`\n`,… over `\x0a`/`
-` | should | plugin | `plugins/no-hex-escape-for-known.grit` | warn | planned | Low priority; flag `\x`/`\u` escapes that have a named equivalent. |
+` | should | plugin | `plugins/no-hex-escape-for-known.grit` | warn | done | Flags `\x`/`\u` escapes for bytes 00,08,09,0a,0b,0c,0d (named-escape equivalents) via `string()` + raw-text regex; silent on `\x1b`/`\x0e`/em-dash. |
 | Non-ASCII: use literal Unicode (+ comment), not hex escapes | should | unenforceable | — | — | n/a | Subjective (readability of the actual character). |
 
 ## 4. Source file structure
@@ -90,7 +90,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Do not use the `Array()` constructor | must | builtin | `useArrayLiterals` | error | planned | |
 | Do not define non-numeric properties on arrays | must | unenforceable | — | — | n/a | Needs type/flow analysis. |
 | Spread: only spread iterables; not primitives | must | unenforceable | — | — | n/a | Type-dependent. |
-| Array destructuring: no space in rest, omit unused, default `[]` for optional param, defaults on LHS | should | plugin | `plugins/array-destructuring-default.grit` (defaults-on-LHS) | warn | planned | Rest spacing is formatter; `[a,b]=[4,2]` param default is plugin-able. Partial. |
+| Array destructuring: no space in rest, omit unused, default `[]` for optional param, defaults on LHS | should | plugin | `plugins/array-destructuring-default.grit` (defaults-on-LHS) | warn | done | Rest spacing is formatter; flags an array-pattern param defaulted to a non-empty array literal (`[a,b]=[4,2]`). Partial by design. |
 
 ### 5.3 Object literals
 
@@ -100,7 +100,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | No unfiltered `for...in` (guard with `hasOwnProperty` or use `Object.keys`) | must | builtin | `useGuardForIn` | error | planned | |
 | Object spread: only spread objects | must | unenforceable | — | — | n/a | Type-dependent. |
 | Computed property keys are dict-style (don't mix with non-quoted) unless symbol | must | unenforceable | — | — | n/a | |
-| Object destructuring params: single level, no nesting/computed, defaults on LHS, optional defaults to `{}` | should | plugin | `plugins/simple-param-destructuring.grit` | warn | planned | Flag nested/computed destructuring in params. |
+| Object destructuring params: single level, no nesting/computed, defaults on LHS, optional defaults to `{}` | should | plugin | `plugins/simple-param-destructuring.grit` | warn | done | Flags nested/computed destructuring in params; scoped to `JsFormalParameter`, so non-param nested destructuring is untouched. |
 
 ### 5.4 Classes
 
@@ -121,8 +121,8 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Prefer parameter properties | prefer | unenforceable | — | — | n/a | Do **not** enable `noParameterProperties` (it bans them — opposite of the guide). |
 | Initialize fields where declared | should | unenforceable | — | — | n/a | |
 | Properties used outside class scope must not be `private`; no `obj['foo']` to bypass visibility | must | unenforceable | — | — | n/a | Type/usage-dependent. |
-| Getters pure; ≥1 non-trivial accessor; no `Object.defineProperty` for accessors | must | plugin | `plugins/no-defineproperty-accessor.grit` (the `defineProperty` part) | warn | planned | Purity/triviality is unenforceable; only the `Object.defineProperty` ban is mechanizable. |
-| Class computed properties only for symbols | must | plugin | `plugins/class-computed-symbol-only.grit` | warn | planned | |
+| Getters pure; ≥1 non-trivial accessor; no `Object.defineProperty` for accessors | must | plugin | `plugins/no-defineproperty-accessor.grit` (the `defineProperty` part) | warn | done | Purity/triviality is unenforceable; flags `Object.defineProperty` with a `get`/`set` descriptor (silent on `value` descriptors). |
+| Class computed properties only for symbols | must | plugin | `plugins/class-computed-symbol-only.grit` | warn | done | Flags string/number-literal computed class keys; bare identifiers (`[sym]`) and `[Symbol.x]` assumed symbol-typed (silent); object-literal keys out of scope. |
 | Never use `public` modifier (except non-readonly public param properties) | must | builtin | `useConsistentMemberAccessibility` (option `noPublic`) | error | planned | **Verified:** `accessibility: "noPublic"` exists; enabled in shared config. |
 | No direct prototype manipulation / mixins / modifying builtin prototypes | must | unenforceable | (`noPrototypeBuiltins` is unrelated) | — | n/a | Mostly out of GritQL reach; partial plugin possible for `X.prototype.y =`. |
 
@@ -186,7 +186,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Avoid `x as T` / `y!` without reason | should | builtin (partial) | `noNonNullAssertion` (for `!`) | warn | planned | The `as` half is unenforceable (no syntactic signal of "without reason"). |
 | Type assertions use `as`, not `<T>x` | must | plugin | `plugins/no-angle-bracket-assertion.grit` | error | done | No built-in. |
 | Double assertions go through `unknown` (not `any`/`{}`) | — | unenforceable | — | — | n/a | Type-dependent. |
-| Use type annotation, not assertion, for object literals (`{…} as Foo`) | use | plugin | `plugins/no-object-literal-assertion.grit` | warn | planned | Flag object-literal `as` casts. |
+| Use type annotation, not assertion, for object literals (`{…} as Foo`) | use | plugin | `plugins/no-object-literal-assertion.grit` | warn | done | Flags `{…} as Foo` via `TsAsExpression` + object-literal operand guard; silent on `as const` and non-object-literal `as`. |
 | Keep `try` blocks focused | should | unenforceable | — | — | n/a | |
 
 ### 5.10 Decorators
@@ -268,7 +268,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Block-tag line wrapping indented 4 spaces | — | unenforceable | — | — | n/a | |
 | Document all top-level exports | should | unenforceable | — | — | n/a | Subjective ("as judged by reviewer"). |
 | Class / method / parameter comment conventions | — | unenforceable | — | — | n/a | |
-| No redundant JSDoc type annotations (`@param {type}`, `@implements`, `@enum`, `@private`, `@override`) in TS | do not | plugin | `plugins/no-jsdoc-types.grit` | warn | planned | Flag type-bearing JSDoc tags in `.ts`. |
+| No redundant JSDoc type annotations (`@param {type}`, `@implements`, `@enum`, `@private`, `@override`) in TS | do not | plugin | `plugins/no-jsdoc-types.grit` | warn | unenforceable | **Comment-blindness** (same wall as #9/#13/#15): `comment()`/`js_comment()`/`Jsdoc()`/`trivia()` fail to compile; JSDoc-text snippets/regex match nothing. Documented `describe.skip` + fixtures as proof; no `.grit` shipped. |
 | Comments must add information | — | unenforceable | — | — | n/a | |
 | Parameter-name comment style (`/* name= */`) | should | unenforceable | — | — | n/a | |
 | Documentation goes before decorators | — | plugin | `plugins/jsdoc-before-decorator.grit` | warn | planned | Same plugin as §5.10. |
@@ -322,3 +322,15 @@ Building the remaining Tier A plugins (issues #3–#10, #12–#15) against Biome
 14. **`no-ts-suppression-comments` and `no-block-comment` reclassified plugin → unenforceable** — comment-blindness, identical to `no-triple-slash-reference` (#9 above). Documented `describe.skip` test suites left in `tests/` as reproducible evidence; no no-op `.grit` shipped.
 
 Net: **plugin total ≈ 21 − 3 = 18** enforceable plugins planned; 10 now `done` (incl. `no-object-constructor`). The 3 newly-unenforceable rules are documented, never faked.
+
+### Implementation findings (2026-06-08, Tier B plugin fan-out)
+
+Building the `ready-for-agent` plugins (issues #18–#24) against Biome 2.4.16. **6 shipped `done`**, **1 reclassified `unenforceable`**:
+
+15. **Shipped (6):** `no-object-literal-assertion` (`TsAsExpression(expression=$expr, ty=$ty)` + `$expr <: JsObjectExpression()` guard; `$ty <: not contains \`const\`` keeps `as const` silent), `class-computed-symbol-only` (`JsMethodClassMember`/`JsPropertyClassMember`/`JsGetterClassMember`/`JsSetterClassMember` with `name=$n <: JsComputedMemberName(expression=$key)` and `$key <:` a string/number literal — bare-identifier and `[Symbol.x]` keys are assumed symbol-typed and stay silent; object-literal computed keys are out of scope because the match is anchored to class-member nodes), `no-defineproperty-accessor` (callee-precise snippet `\`Object.defineProperty($obj, $key, $descriptor)\`` + `$descriptor <: contains or { \`get\`, \`set\` }`), `simple-param-destructuring` (`JsFormalParameter()` containing `JsComputedMemberName()` or a binding pattern nested inside a `JsObjectBindingPatternProperty`/`JsArrayBindingPatternElement`), `array-destructuring-default` (`JsFormalParameter(binding=JsArrayBindingPattern(), initializer=$init)` + `$init <: contains JsArrayExpression()` and `$init <: not contains \`[]\`` — partial: defaults-on-LHS only), `no-hex-escape-for-known` (`string()` + raw-text regex on named-escape bytes 00,08,09,0a,0b,0c,0d).
+
+16. **Three new verified GritQL gotchas (folded into [`docs/agents/gritql-plugins.md`](../../docs/agents/gritql-plugins.md)):** (a) **`within <SameKind>` is self-inclusive** — a `JsObjectBindingPattern` reports as "within" a `JsObjectBindingPattern` (itself), so detect nesting via a *distinct* container kind (property/element), not pattern-within-pattern. (b) **Regex alternation groups `(a|b)` fail to compile** in 2.4.16 — split into two `<:` regexes under an `or { }` block. (c) **List/spread dots are position-restricted** — `\`[$...] = [$...defaults]\`` errors `"Dots should only be directly within a list pattern"`; use a node-kind pattern with field bindings (`binding=…, initializer=…`) instead, and discriminate empty-vs-non-empty array defaults with `not contains \`[]\``.
+
+17. **`no-jsdoc-types` reclassified plugin → unenforceable** — comment-blindness, the fourth instance (after #9/#13/#15). Verified against the real CLI: `comment()`, `js_comment()`, `multiline_comment()`, `Jsdoc()`, `trivia()` all **fail to compile**; `\`/** @param {$type} $name */\``, `\`@param\``, and `r"@param"` all **compile but match nothing**. Documented `describe.skip` suite + fixtures left as reproducible evidence; no no-op `.grit` shipped.
+
+Net: **16 of 18 enforceable plugins now `done`**; 4 rules reclassified `unenforceable` across both fan-outs, all documented and never faked. Remaining: the 5 `ready-for-human` plugins (#25–#29).

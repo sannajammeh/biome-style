@@ -1,0 +1,14 @@
+// Google TypeScript Style Guide — don't define accessors via Object.defineProperty.
+// Flags `Object.defineProperty(o, k, { get/set … })`; use a class `get`/`set`
+// instead. Stays silent on data (`{ value: … }`) descriptors and other
+// `Object.*` calls. Only the `defineProperty` mechanism is mechanizable here —
+// getter purity/triviality is unenforceable.
+language js
+
+`Object.defineProperty($obj, $key, $descriptor)` as $call where {
+  $descriptor <: contains or {
+    `get`,
+    `set`
+  },
+  register_diagnostic(span=$call, message="Do not define accessors with `Object.defineProperty`; use a class `get`/`set` accessor instead.", severity="warn")
+}

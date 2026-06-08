@@ -46,7 +46,13 @@ Setup is two steps, because Biome distributes config and plugins through differe
     "./node_modules/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
     "./node_modules/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
     "./node_modules/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-function-expression.grit"
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-function-expression.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-literal-assertion.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/class-computed-symbol-only.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-defineproperty-accessor.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/simple-param-destructuring.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/array-destructuring-default.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-hex-escape-for-known.grit"
   ]
 }
 ```

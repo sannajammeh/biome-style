@@ -1,0 +1,13 @@
+// Google TypeScript Style Guide -- prefer the shortest named escape sequence.
+// Flags hex (\x0a) and unicode (\u000a) escapes inside string literals when
+// a shorter named escape exists: bytes 00,08,09,0a,0b,0c,0d map to
+// \0 \b \t \n \v \f \r. Hex digits are case-insensitive. Escapes with no
+// named equivalent (e.g. \x1b, \x0e, an em dash) and plain strings stay silent.
+language js
+
+$s where {
+  $s <: string(),
+  or { $s <: r".*\\x0[089abcdABCD].*", $s <: r".*\\u000[089abcdABCD].*" }
+} where {
+  register_diagnostic(span=$s, message="Use the shorter named escape (\\0 \\b \\t \\n \\v \\f \\r) instead of a hex or unicode escape.", severity="warn")
+}
