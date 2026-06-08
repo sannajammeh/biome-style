@@ -10,7 +10,7 @@ Accepted. The "Bundled mega-`.grit`" alternative rejected below is revisited by 
 
 The package must be installable and referenced from a consumer's `biome.json` with minimal friction. Biome offers two distribution channels, and they behave differently:
 
-- **`extends`** resolves configuration from an npm package via a `package.json` `exports` subpath (e.g. `extends: ["biome-style/google-typescript"]`). This works well for `formatter` and `linter` settings.
+- **`extends`** resolves configuration from an npm package via a `package.json` `exports` subpath (e.g. `extends: ["@sannajammeh/biome-style/google-typescript"]`). This works well for `formatter` and `linter` settings.
 - **`plugins`** is an array of `.grit` paths. Biome's maintainers have **deliberately chosen not to resolve plugin paths from npm packages** (to avoid ESLint-style plugin sprawl, preferring rules be upstreamed into Biome core). The [recent extends/plugin fix](https://github.com/biomejs/biome/pull/8365) only covers the in-repo monorepo `extends: "//"` case; open issues confirm that `.grit` paths declared in a package config consumed via `extends` do **not** reliably resolve for the consumer.
 
 So the config layer can travel via `extends`, but the plugin layer cannot. A shared config that lists `plugins` with package-relative paths will not work once extended from `node_modules`.
@@ -19,10 +19,10 @@ The enforcement model ([ADR-0001](0001-layered-enforcement-diagnostic-only-plugi
 
 ## Decision
 
-Split distribution by layer, and keep both layers in **one** package (`biome-style`), one subpath export per guide:
+Split distribution by layer, and keep both layers in **one** package (`@sannajammeh/biome-style`), one subpath export per guide:
 
-- **Config layer (formatter + built-in rules)** ships as a **shared config** at a subpath (`biome-style/google-typescript`) and is consumed with a single `extends` entry. This shared config carries **no `plugins` key**.
-- **Plugin layer** ships as **granular, per-rule `.grit` files**. Consumers reference them with **explicit `./node_modules/biome-style/google-typescript/plugins/*.grit` paths** in their own `plugins` array. The README documents the full copy-paste list.
+- **Config layer (formatter + built-in rules)** ships as a **shared config** at a subpath (`@sannajammeh/biome-style/google-typescript`) and is consumed with a single `extends` entry. This shared config carries **no `plugins` key**.
+- **Plugin layer** ships as **granular, per-rule `.grit` files**. Consumers reference them with **explicit `./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/*.grit` paths** in their own `plugins` array. The README documents the full copy-paste list.
 
 The repository keeps a **separate dev/test config** that wires the plugins by local relative path, used for the fixture test suite and to dogfood the guide on this repo itself.
 
