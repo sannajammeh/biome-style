@@ -1,0 +1,20 @@
+// Google TypeScript Style Guide — computed class member keys only for symbols.
+// Flags string/number-literal computed keys (`['foo']() {}`, `[0] = 1`). Bare
+// identifiers (`[sym]`) are assumed symbol-typed and left alone — syntax cannot
+// tell a symbol-valued identifier from any other — as is `[Symbol.x]`. Scoped to
+// class members, so object-literal computed keys are untouched.
+language js
+
+or {
+  JsMethodClassMember(name=$name),
+  JsPropertyClassMember(name=$name),
+  JsGetterClassMember(name=$name),
+  JsSetterClassMember(name=$name)
+} where {
+  $name <: JsComputedMemberName(expression=$key),
+  $key <: or {
+    JsStringLiteralExpression(),
+    JsNumberLiteralExpression()
+  },
+  register_diagnostic(span=$name, message="Computed class member keys are allowed only for symbols; use a symbol or a plain identifier key.", severity="warn")
+}

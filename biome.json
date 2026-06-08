@@ -11,7 +11,13 @@
     "./guides/google-typescript/plugins/no-unary-plus.grit",
     "./guides/google-typescript/plugins/no-parseint-base10.grit",
     "./guides/google-typescript/plugins/no-nullable-type-alias.grit",
-    "./guides/google-typescript/plugins/no-function-expression.grit"
+    "./guides/google-typescript/plugins/no-function-expression.grit",
+    "./guides/google-typescript/plugins/no-object-literal-assertion.grit",
+    "./guides/google-typescript/plugins/class-computed-symbol-only.grit",
+    "./guides/google-typescript/plugins/no-defineproperty-accessor.grit",
+    "./guides/google-typescript/plugins/simple-param-destructuring.grit",
+    "./guides/google-typescript/plugins/array-destructuring-default.grit",
+    "./guides/google-typescript/plugins/no-hex-escape-for-known.grit"
   ],
   "files": {
     "includes": ["**", "!**/tests/**", "!**/node_modules/**", "!**/.claude/**"]

@@ -1,0 +1,18 @@
+// Google TypeScript Style Guide — default values for array destructuring should
+// be set per-element on the LHS, not as a whole array literal on the RHS.
+// Flags a parameter like `function f([a, b] = [4, 2])`, steering toward
+// `function f([a = 4, b = 2] = [])`.
+//
+// PARTIAL SCOPE: this plugin covers ONLY the defaults-on-LHS portion of the
+// directive — a non-empty array-literal default on an array-destructuring
+// parameter. It is intentionally silent on the correct LHS form
+// (`[a = 4, b = 2] = []`), on plain destructuring without a default
+// (`[a, b]`), and on object destructuring. Rest-element spacing within the
+// pattern is left to the formatter, not this plugin.
+language js
+
+JsFormalParameter(binding=JsArrayBindingPattern(), initializer=$init) as $param where {
+  $init <: contains JsArrayExpression(),
+  $init <: not contains `[]`,
+  register_diagnostic(span=$param, message="Set array-destructuring defaults per element on the left-hand side (`[a = 4] = []`), not as a whole array literal on the right-hand side.", severity="warn")
+}

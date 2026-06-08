@@ -1,0 +1,25 @@
+// Google TypeScript Style Guide — keep parameter destructuring simple.
+// Flags function parameters that destructure with NESTED or COMPUTED patterns
+// (e.g. `({ x: { y } })`, `({ [k]: v })`, `([{ z }])`). Single-level
+// destructuring params and defaults are fine; nested destructuring outside a
+// parameter list is unaffected.
+language js
+
+JsFormalParameter() as $p where {
+  $p <: contains or {
+    JsComputedMemberName(),
+    JsObjectBindingPattern() as $nestedObj where {
+      $nestedObj <: within or {
+        JsObjectBindingPatternProperty(),
+        JsArrayBindingPatternElement()
+      }
+    },
+    JsArrayBindingPattern() as $nestedArr where {
+      $nestedArr <: within or {
+        JsObjectBindingPatternProperty(),
+        JsArrayBindingPatternElement()
+      }
+    }
+  },
+  register_diagnostic(span=$p, message="Parameter destructuring must be single-level and non-computed; avoid nested or computed destructuring in parameters.", severity="warn")
+}
