@@ -1,0 +1,22 @@
+{
+  "name": "biome-style",
+  "version": "0.0.0",
+  "description": "Published coding style guides ported into Biome — formatter options, built-in lint rules, and GritQL plugins. First guide: Google TypeScript Style Guide.",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "guides"
+  ],
+  "exports": {
+    "./google-typescript": "./guides/google-typescript/biome.json",
+    "./google-typescript/*": "./guides/google-typescript/*"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.16",
+    "@types/bun": "latest"
+  }
+}
