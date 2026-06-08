@@ -1,0 +1,18 @@
+// Google TypeScript Style Guide — prefer function declarations for named
+// module-scope functions (§5.5). Flags `const f = () => {}` and
+// `const f = function () {}` at module scope. Scope is discriminated by
+// `not within JsFunctionBody()`: a module-scope declarator has no function-body
+// ancestor, while nested helpers (`function outer() { const inner = () => {} }`)
+// do and stay silent. Inline callbacks and class arrow properties are not
+// variable declarators, so they never match (the latter is `no-arrow-property`).
+language js
+
+JsVariableDeclarator(initializer=$init) where {
+  $init <: JsInitializerClause(expression=$fn),
+  $fn <: or {
+    JsArrowFunctionExpression(),
+    JsFunctionExpression()
+  },
+  $fn <: not within JsFunctionBody() ,
+  register_diagnostic(span=$fn, message="Prefer a function declaration (`function f() {}`) over assigning a function to a `const` at module scope.", severity="warn")
+}

@@ -81,6 +81,23 @@ These cost real time to discover. Trust them.
   lives in a comment — e.g. `/// <reference />` triple-slash directives — is
   **not expressible as a plugin**. Classify such rules `unenforceable` in
   `COVERAGE.md`, don't fake them.
+- **Whitespace/blank lines are invisible too — the comment-blindness sibling.**
+  Blank lines (and whitespace generally) are trivia, like comments. Nodes that a
+  blank line sits *between* are still matchable (e.g. decorators: `JsDecorator()`
+  matches, and `JsClassDeclaration() <: contains JsDecorator()` matches a
+  decorated class), but the engine cannot tell an adjacent decorator from one
+  separated by a blank line — the node pattern fires **identically** on both, and
+  there is no line-number / span-arithmetic / trivia predicate to compare
+  positions. Rules about blank lines between constructs (e.g.
+  `no-blank-line-after-decorator`) are therefore `unenforceable`. Classify them,
+  don't fake them.
+- **`not within JsFunctionBody()` expresses "module / top-level scope".** A
+  declaration at module scope has no function-body ancestor; a nested one does.
+  So to scope a rule to top-level only (e.g. `prefer-function-declaration` flags
+  `const f = () => {}` at module scope but not nested helpers), guard the matched
+  node with `$node <: not within JsFunctionBody()`. (Unlike the self-inclusive
+  `within <SameKind>` gotcha below, this works because the arrow/function is a
+  *different* kind than its function-body ancestor.)
 - **Prefer backtick snippets over node-kind patterns.** grit.io node kinds like
   `call_expression()` / `new_expression()` are tree-sitter names; Biome's CST
   uses different names, so they tend to fail to compile. Code snippets

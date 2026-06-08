@@ -17,7 +17,9 @@
     "./guides/google-typescript/plugins/no-defineproperty-accessor.grit",
     "./guides/google-typescript/plugins/simple-param-destructuring.grit",
     "./guides/google-typescript/plugins/array-destructuring-default.grit",
-    "./guides/google-typescript/plugins/no-hex-escape-for-known.grit"
+    "./guides/google-typescript/plugins/no-hex-escape-for-known.grit",
+    "./guides/google-typescript/plugins/no-arrow-property.grit",
+    "./guides/google-typescript/plugins/prefer-function-declaration.grit"
   ],
   "files": {
     "includes": ["**", "!**/tests/**", "!**/node_modules/**", "!**/.claude/**"]

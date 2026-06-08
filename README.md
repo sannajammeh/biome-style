@@ -71,6 +71,8 @@ Plugins are granular (one rule per file) so you can drop the ones you don't want
 | `no-parseint-base10` | No `parseInt`/`parseFloat` for base-10 parsing | error |
 | `no-nullable-type-alias` | Type aliases must not include `\| null` / `\| undefined` | error |
 | `no-function-expression` | Use arrow functions, not function expressions | error |
+| `no-arrow-property` | Classes usually shouldn't have arrow-function properties | info |
+| `prefer-function-declaration` | Prefer function declarations for named module-scope functions | warn |
 
 Then run Biome as usual:
 
