@@ -1,0 +1,13 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "extends": ["./guides/google-typescript/biome.json"],
+  "plugins": [],
+  "files": {
+    "includes": [
+      "**",
+      "!**/tests/**/fixtures/**",
+      "!**/node_modules/**",
+      "!**/.claude/**"
+    ]
+  }
+}

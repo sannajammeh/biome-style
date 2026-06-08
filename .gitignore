@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+
+# Test / build artifacts
+coverage/

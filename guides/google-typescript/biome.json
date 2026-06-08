@@ -1,0 +1,93 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "root": false,
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "arrowParentheses": "always"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "complexity": {
+        "noUselessRename": "warn",
+        "noStaticOnlyClass": "error",
+        "noThisInStatic": "error",
+        "noUselessConstructor": "error",
+        "noExtraBooleanCast": "warn",
+        "noBannedTypes": "error"
+      },
+      "correctness": {
+        "noInvalidUseBeforeDeclaration": "error"
+      },
+      "security": {
+        "noGlobalEval": "error"
+      },
+      "style": {
+        "noCommonJs": "error",
+        "noDefaultExport": "error",
+        "noInferrableTypes": "warn",
+        "noNamespace": "error",
+        "noNonNullAssertion": "warn",
+        "useArrayLiterals": "error",
+        "useBlockStatements": "error",
+        "useConsistentArrayType": {
+          "level": "warn",
+          "options": { "syntax": "shorthand" }
+        },
+        "useConsistentBuiltinInstantiation": "error",
+        "useConsistentMemberAccessibility": {
+          "level": "error",
+          "options": { "accessibility": "noPublic" }
+        },
+        "useConsistentTypeDefinitions": {
+          "level": "warn",
+          "options": { "style": "interface" }
+        },
+        "useConst": "error",
+        "useDefaultSwitchClause": "error",
+        "useExportType": "warn",
+        "useFilenamingConvention": {
+          "level": "warn",
+          "options": { "requireAscii": true, "filenameCases": ["snake_case"] }
+        },
+        "useForOf": "warn",
+        "useImportType": "warn",
+        "useNamingConvention": {
+          "level": "error",
+          "options": { "requireAscii": true }
+        },
+        "useReadonlyClassProperties": "warn",
+        "useSingleVarDeclarator": "error",
+        "useTemplate": "warn",
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "warn",
+        "noConstEnum": "error",
+        "noDebugger": "error",
+        "noDoubleEquals": "error",
+        "noEmptyBlockStatements": "warn",
+        "noExplicitAny": "warn",
+        "noFallthroughSwitchClause": "error",
+        "noGlobalAssign": "error",
+        "noIrregularWhitespace": "error",
+        "noTsIgnore": "error",
+        "noVar": "error",
+        "useDefaultSwitchClauseLast": "error",
+        "useGuardForIn": "error"
+      },
+      "nursery": {
+        "noImpliedEval": "error"
+      }
+    }
+  }
+}
