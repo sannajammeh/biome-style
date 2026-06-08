@@ -1,0 +1,9 @@
+// Google TypeScript Style Guide — use `x as T`, not `<T>x`.
+// Bans the legacy angle-bracket type assertion `<Foo>expr` in favour of the
+// `expr as Foo` form. Stays silent on generic type arguments (`Array<T>`) and
+// generic call type arguments (`foo<T>()`), which are unrelated syntax.
+language js
+
+TsTypeAssertionExpression(expression=$expr) as $assertion where {
+  register_diagnostic(span=$assertion, message="Do not use angle-bracket type assertions (`<T>x`); use `x as T` instead.", severity="error")
+}

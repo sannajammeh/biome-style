@@ -1,0 +1,26 @@
+// Google TypeScript Style Guide — prefer arrow functions over function
+// expressions. Flags function EXPRESSIONS in their three common positions:
+// assigned (`const f = function () {}`), passed as a call argument
+// (`arr.map(function (x) {})`), and immediately invoked (`(function () {})()`).
+//
+// Function DECLARATIONS (`function foo() {}`) and class methods are statements,
+// never the right-hand side of an assignment / a call argument / a
+// parenthesised IIFE, so they never match. Generator function expressions
+// (`function* () {}`) are exempt: the snippet matches only the non-generator
+// `function` form, so `function*` is skipped automatically.
+//
+// Expression-vs-declaration is decided structurally — each branch binds the
+// function only when it sits in an expression slot, and the call-argument
+// branch uses `some` (direct list elements) rather than a transitive `contains`
+// so a declaration nested inside an argument's arrow body is not flagged.
+language js
+
+or {
+  `$_ = $fn` where { $fn <: `function $name($...) { $... }` },
+  `($fn)` where { $fn <: `function $name($...) { $... }` },
+  `$callee($args)` where {
+    $args <: some (`function $name($...) { $... }` as $fn)
+  }
+} where {
+  register_diagnostic(span=$fn, message="Use an arrow function instead of a function expression.", severity="error")
+}

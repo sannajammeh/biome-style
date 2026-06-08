@@ -1,0 +1,14 @@
+// Google TypeScript Style Guide — use the TypeScript `private` modifier, not
+// ECMAScript `#private`. Flags `#`-prefixed class members (fields, methods, and
+// getters/setters). Members using the `private` modifier are not flagged.
+//
+// GritQL snippets can't bind a metavariable after `#` (`#$name` fails to match
+// in Biome 2.4.16's CST), so this matches the private-name node by its text:
+// `#` followed by an identifier. The `[A-Za-z0-9_]+` body keeps the match to the
+// bare name node (not the wider `#x = 0` field node), avoiding double diagnostics.
+language js
+
+$node where {
+  $node <: r"#[A-Za-z0-9_]+",
+  register_diagnostic(span=$node, message="Do not use ECMAScript `#private` members; use the TypeScript `private` modifier instead.", severity="error")
+}

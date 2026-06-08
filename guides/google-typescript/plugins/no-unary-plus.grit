@@ -1,0 +1,8 @@
+// Google TypeScript Style Guide — do not use unary `+` to coerce to number.
+// Use `Number()` instead. Flags `+expr` (e.g. `+x`, `+'42'`), while staying
+// silent on binary addition (`a + b`), increment (`++`), and compound `+=`.
+language js
+
+`+$operand` as $node where {
+  register_diagnostic(span=$node, message="Do not use unary `+` to coerce to number; use `Number()` instead.", severity="error")
+}

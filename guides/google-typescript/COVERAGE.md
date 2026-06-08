@@ -18,7 +18,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 
 **Severity** mirrors the guide's force of language (per `CONTEXT.md` → severity mapping): must/never/always/disallowed → `error`; should/prefer/avoid → `warn`; consider/may → `info`; not enforced → `—`.
 
-**Status**: `planned` = mechanism chosen, not yet wired; `n/a` = unenforceable. (No rules are implemented yet — this matrix comes first.)
+**Status**: `done` = implemented, wired into the dev config, and covered by a passing harness test; `planned` = mechanism chosen, not yet wired; `n/a` = unenforceable.
 
 > Where a built-in rule is **stricter or looser** than the guide, it's flagged in Notes. A stricter built-in (enforces a superset) is acceptable; a looser one means partial coverage.
 
@@ -59,7 +59,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Use named exports | must | builtin | `noDefaultExport` (+ `noRedundantDefaultExport`) | error | planned | |
 | Do not use default exports | must | builtin | `noDefaultExport` | error | planned | |
 | Export visibility: only export used symbols | should | unenforceable | — | — | n/a | Needs whole-program usage analysis. |
-| Mutable exports: `export let` not allowed | must | plugin | `plugins/no-mutable-export.grit` | error | planned | Flag `export let` / `export var`. No built-in. |
+| Mutable exports: `export let` not allowed | must | unenforceable | — | — | n/a | Not expressible in Biome 2.4.16 GritQL (verified against the real CLI). The `export` keyword is invisible to the engine — no `JS_EXPORT` node kind is exposed (`export()` collides with a GritQL keyword; `js_export()` fails to compile) and no snippet metavar binds it (`` `export $stmt` ``, `` `export $d` `` match nothing). Worse, `let $metavar` in binding-name position never matches (`` `let $n = $i` `` → 0 matches, while `` `var $n = $i` `` and `` `const $n = $i` `` work, and the literal `` `let a = $i` `` works) — so an exported `let` can't be matched even ignoring the export prefix. `export var` alone IS matchable, but the rule requires both and must stay silent on non-exported `let`/`var`, which is not achievable. |
 | No container classes (static-only namespacing classes) | must | builtin | `noStaticOnlyClass` | error | planned | |
 
 ### 4.5 Import and export type
@@ -69,7 +69,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Use `import type` when symbol used only as a type | may | builtin | `useImportType` | warn | planned | Biome can enforce consistent type-only imports. |
 | Use `export type` when re-exporting a type | use | builtin | `useExportType` | warn | planned | |
 | Use modules, not `namespace` | must | builtin | `noNamespace` | error | planned | |
-| No `import x = require(...)` | must | plugin | `plugins/no-import-equals-require.grit` | error | planned | **Verified:** `noCommonJs` does *not* flag import-equals require. `noCommonJs` is still enabled (covers `require()`/`module.exports`); this plugin covers the TS import-equals form. |
+| No `import x = require(...)` | must | plugin | `plugins/no-import-equals-require.grit` | error | done | **Verified:** `noCommonJs` does *not* flag import-equals require. `noCommonJs` is still enabled (covers `require()`/`module.exports`); this plugin covers the TS import-equals form. |
 | No `/// <reference path=...>` | must | unenforceable | — | — | n/a | **Verified:** triple-slash directives are comment trivia; GritQL ignores comments (Biome exposes no `comment()` node — fails to compile) and there is no built-in. Not expressible in 2.4.16. |
 
 ## 5. Language features
@@ -96,7 +96,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Do not use the `Object()` constructor | must | plugin | `plugins/no-object-constructor.grit` | error | planned | **Verified:** `useConsistentBuiltinInstantiation` pushes `Object()` → `new Object()` (opposite of guide); plugin required for the `{}`-only rule. |
+| Do not use the `Object()` constructor | must | plugin | `plugins/no-object-constructor.grit` | error | done | **Verified:** `useConsistentBuiltinInstantiation` pushes `Object()` → `new Object()` (opposite of guide); plugin required for the `{}`-only rule. |
 | No unfiltered `for...in` (guard with `hasOwnProperty` or use `Object.keys`) | must | builtin | `useGuardForIn` | error | planned | |
 | Object spread: only spread objects | must | unenforceable | — | — | n/a | Type-dependent. |
 | Computed property keys are dict-style (don't mix with non-quoted) unless symbol | must | unenforceable | — | — | n/a | |
@@ -113,10 +113,10 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Prefer module-local functions over private static methods | prefer | unenforceable | — | — | n/a | |
 | No dynamic dispatch of static methods | should | unenforceable | — | — | n/a | Type-dependent. |
 | No `this` in a static context | must | builtin | `noThisInStatic` | error | planned | Confirm rule semantics match (static method `this`). |
-| Constructor calls must use parentheses (`new Foo()`) | must | plugin | `plugins/new-parens.grit` | error | planned | Flag `new Foo` without `()`. No built-in. |
+| Constructor calls must use parentheses (`new Foo()`) | must | plugin | `plugins/new-parens.grit` | error | done | Flag `new Foo` without `()`. No built-in. |
 | No unnecessary/empty constructor (except param props / visibility / decorators) | must | builtin | `noUselessConstructor` | error | planned | **Verified:** exempts parameter-property constructors; flags only truly-empty ctors. |
 | Constructor separated by blank line above & below | should | unenforceable | — | — | n/a | |
-| No `#private` fields — use `private` | must | plugin | `plugins/no-private-identifier.grit` | error | planned | Flag `#ident` members. No built-in. |
+| No `#private` fields — use `private` | must | plugin | `plugins/no-private-identifier.grit` | error | done | Flag `#ident` members. No built-in. |
 | Mark never-reassigned properties `readonly` | should | builtin | `useReadonlyClassProperties` | warn | planned | |
 | Prefer parameter properties | prefer | unenforceable | — | — | n/a | Do **not** enable `noParameterProperties` (it bans them — opposite of the guide). |
 | Initialize fields where declared | should | unenforceable | — | — | n/a | |
@@ -132,7 +132,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | --- | --- | --- | --- | --- | --- | --- |
 | Prefer function declarations for named functions | prefer | plugin | `plugins/prefer-function-declaration.grit` | warn | planned | Flag `const f = () => …` / `const f = function …` at module scope. Heuristic — `useArrowFunction` is the opposite, do not enable. |
 | Nested functions may use declarations or arrows | may | unenforceable | — | — | n/a | |
-| Do not use function expressions (use arrows) | must | plugin | `plugins/no-function-expression.grit` | error | planned | Exempt generators and explicit `this`-rebinding. |
+| Do not use function expressions (use arrows) | must | plugin | `plugins/no-function-expression.grit` | error | done | Exempt generators and explicit `this`-rebinding. |
 | Concise arrow body only if return value used | — | unenforceable | — | — | n/a | Type/flow-dependent. |
 | Function decls/exprs must not use `this` (unless rebinding) | must | unenforceable | — | — | n/a | Hard to scope syntactically without false positives. |
 | Prefer arrow callbacks over named callbacks (e.g. `.map(parseInt)`) | avoid | unenforceable | — | — | n/a | Type/signature-dependent. |
@@ -157,14 +157,14 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | Strings use single quotes | — | formatter | `quoteStyle: "single"` | error | planned | |
-| No line continuations in strings | must | plugin | `plugins/no-multiline-string.grit` | error | planned | **Verified:** `noMultilineString` does not exist in Biome 2.4.16. Plugin flags backslash line-continuations in string literals. |
+| No line continuations in strings | must | plugin | `plugins/no-multiline-string.grit` | error | done | **Verified:** `noMultilineString` does not exist in Biome 2.4.16. Plugin flags backslash line-continuations in string literals. |
 | Prefer template literals over complex concatenation | use | builtin | `useTemplate` | warn | planned | |
 | Number literals: lowercase `0x`/`0o`/`0b`, no leading zero | must | formatter | (numeric literal formatting) | error | planned | **Verified:** formatter normalizes casing (`0xFF`→`0xff`, `1E10`→`1e10`); leading-zero octal is a parser *error* — no plugin needed. |
 | Coerce with `String()`/`Boolean()`/`!!` (no `new`) | may | builtin | `useConsistentBuiltinInstantiation` | error | planned | The `no new` part — see Wrapper objects (5.9.1). |
 | Enums must not be coerced to boolean | must | unenforceable | — | — | n/a | Type-dependent. |
 | Use `Number()` to parse + check `NaN` | must | unenforceable | — | — | n/a | Semantic. |
-| No unary `+` to coerce to number | must | plugin | `plugins/no-unary-plus.grit` | error | planned | No `noImplicitCoercion` equivalent in Biome. |
-| No `parseInt`/`parseFloat` except non-base-10 | must | plugin | `plugins/no-parseint-base10.grit` | error | planned | Flag `parseFloat` and `parseInt(_, 10)`/no-radix. |
+| No unary `+` to coerce to number | must | plugin | `plugins/no-unary-plus.grit` | error | done | No `noImplicitCoercion` equivalent in Biome. |
+| No `parseInt`/`parseFloat` except non-base-10 | must | plugin | `plugins/no-parseint-base10.grit` | error | done | Flag `parseFloat` and `parseInt(_, 10)`/no-radix. |
 | No redundant `!!` in `if`/`for`/`while` conditions | — | builtin | `noExtraBooleanCast` | warn | planned | |
 
 ### 5.9 Control structures
@@ -184,7 +184,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | No fall-through between non-empty case groups | must | builtin | `noFallthroughSwitchClause` | error | planned | |
 | Use `===`/`!==`; `== null` allowed | always | builtin | `noDoubleEquals` | error | planned | Biome's default allows `== null` — exact match. |
 | Avoid `x as T` / `y!` without reason | should | builtin (partial) | `noNonNullAssertion` (for `!`) | warn | planned | The `as` half is unenforceable (no syntactic signal of "without reason"). |
-| Type assertions use `as`, not `<T>x` | must | plugin | `plugins/no-angle-bracket-assertion.grit` | error | planned | No built-in. |
+| Type assertions use `as`, not `<T>x` | must | plugin | `plugins/no-angle-bracket-assertion.grit` | error | done | No built-in. |
 | Double assertions go through `unknown` (not `any`/`{}`) | — | unenforceable | — | — | n/a | Type-dependent. |
 | Use type annotation, not assertion, for object literals (`{…} as Foo`) | use | plugin | `plugins/no-object-literal-assertion.grit` | warn | planned | Flag object-literal `as` casts. |
 | Keep `try` blocks focused | should | unenforceable | — | — | n/a | |
@@ -234,7 +234,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Leave out trivially inferred type annotations | should | builtin | `noInferrableTypes` | warn | planned | |
 | Return-type annotations are author's choice | — | unenforceable | — | — | n/a | Do **not** enable `useExplicitType`/`useExplicitReturnType`. |
 | No `undefined` vs `null` preference | — | unenforceable | — | — | n/a | |
-| Type aliases must not include `\|null`/`\|undefined` | must | plugin | `plugins/no-nullable-type-alias.grit` | error | planned | Flag `type X = … \| null \| undefined`. |
+| Type aliases must not include `\|null`/`\|undefined` | must | plugin | `plugins/no-nullable-type-alias.grit` | error | done | Flag `type X = … \| null \| undefined`. |
 | Prefer optional `?` over `\|undefined` | use | unenforceable | — | — | n/a | Partly type-dependent. |
 | Include the type at structural-implementation declarations | should | unenforceable | — | — | n/a | Type-dependent (inference vs annotation). |
 | Prefer `interface` over type-literal alias | use | builtin | `useConsistentTypeDefinitions` (option `interface`) | warn | planned | |
@@ -253,7 +253,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | --- | --- | --- | --- | --- | --- | --- |
 | Files must pass `tsc` type checking | must | unenforceable | — | — | n/a | Out of scope (the compiler's job). |
 | No `@ts-ignore` | do not | builtin | `noTsIgnore` | error | planned | |
-| No `@ts-expect-error` / `@ts-nocheck` | do not | plugin | `plugins/no-ts-suppression-comments.grit` | error | planned | **Verified:** `noTsIgnore` covers only `@ts-ignore` (and *suggests* `@ts-expect-error`); plugin needed for these variants. |
+| No `@ts-expect-error` / `@ts-nocheck` | do not | unenforceable | — | — | n/a | **Verified (reclassified plugin → unenforceable):** these are directive *comments*, and GritQL is comment-blind in Biome 2.4.16 — the same wall as `no-triple-slash-reference`. `comment()`/`ts_directive()` node kinds fail to compile; snippet `` `@ts-expect-error` `` and regex `r"@ts-(expect-error\|nocheck)"` compile but match nothing (a control snippet on a real AST node in the same file fires, proving the engine runs). `noTsIgnore` still covers `@ts-ignore`; the `@ts-expect-error`/`@ts-nocheck` variants are not mechanizable. |
 | Abide by conformance frameworks (tsetse/tsec) | must | unenforceable | — | — | n/a | Google-internal tooling. |
 
 ## 9. Comments and documentation
@@ -261,7 +261,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | JSDoc `/** */` for docs, `//` for implementation comments | — | unenforceable | — | — | n/a | Intent-dependent. |
-| Multi-line comments use `//`, not `/* */` | must | plugin | `plugins/no-block-comment.grit` | warn | planned | Must allow JSDoc `/** */`. |
+| Multi-line comments use `//`, not `/* */` | must | unenforceable | — | — | n/a | **Verified (reclassified plugin → unenforceable):** block comments are comment trivia, invisible to GritQL in Biome 2.4.16 (same wall as `no-triple-slash-reference`). `comment()`/`multiline_comment()`/`block_comment()` node kinds fail to compile; snippet `` `/* $msg */` `` compiles but matches nothing, so JSDoc `/** */` can't even be distinguished. No built-in exists. |
 | JSDoc general form / single-line overflow rules | must | unenforceable | — | — | n/a | Formatting nuance Biome doesn't own. |
 | JSDoc written in Markdown | — | unenforceable | — | — | n/a | |
 | JSDoc tags occupy their own line | — | unenforceable | — | — | n/a | |
@@ -312,3 +312,13 @@ Discovered while building issue #1 (fixture harness) against Biome 2.4.16:
 9. **`no-triple-slash-reference` is NOT expressible as a plugin.** GritQL ignores comment trivia and Biome exposes no comment node kind (`comment()` fails to compile); triple-slash directives are comments, and there is no built-in. → reclassified **plugin → unenforceable** (row above). Plugin total ≈ 21.
 10. **`no-object-constructor` confirmed working** as the harness's tracer plugin: `` or { `new Object($...)`, `Object($...)` } `` flags both constructor forms and stays silent on `{}`, `Object.keys`/`assign`/`freeze`. Uses `$...` (anonymous spread); the named `$...args` spread matched nothing.
 11. **`files.includes` negation only excludes ROOT-level directories in 2.4.16.** `!**/tests/**` excludes a root `tests/` dir but not a nested `guides/<guide>/tests/`, despite docs. → tests live in a **top-level `tests/`** tree (also keeps them out of the published `guides/` package). See [`docs/agents/gritql-plugins.md`](../../docs/agents/gritql-plugins.md) for the full set of authoring gotchas.
+
+### Implementation findings (2026-06-08, Tier A plugin fan-out)
+
+Building the remaining Tier A plugins (issues #3–#10, #12–#15) against Biome 2.4.16. **9 shipped `done`**, **3 reclassified `unenforceable`**:
+
+12. **Shipped (9):** `new-parens` (bare `` `new $callee` `` is parens-precise — does not match `new Foo()`), `no-unary-plus` (`` `+$operand` `` is operator-precise vs binary/`++`/`+=`), `no-import-equals-require` (`` `import $x = require($_)` ``), `no-nullable-type-alias` (`` `type $name = $body` `` + `$body <: contains or { `null`, `undefined` }`), `no-parseint-base10` (`or` of `parseFloat($...)` / `parseInt($x)` guarded `not `parseInt($a, $b)`` / `parseInt($x, $radix)` where `$radix <: `10``), `no-private-identifier` (snippet metavars on `#name` don't bind — used node-text regex `r"#[A-Za-z0-9_]+"`), `no-angle-bracket-assertion` (snippets match nothing — required node kind `TsTypeAssertionExpression(expression=$expr)`; bare kind matches 0, must reference a field), `no-multiline-string` (`string()` kind + `r".*\\\n.*"` on raw literal text), `no-function-expression` (no expr-vs-decl kind exists — discriminated by syntactic slot via three context snippets; `some` over args not transitive `within`/`contains` to avoid flagging declarations nested in arg bodies; `function*` generators are auto-exempt as a distinct node).
+13. **`no-mutable-export` reclassified plugin → unenforceable.** Two independent confirmed blockers: (a) a `let`-metavar-in-name-slot bug — `` `let $n = $i` `` matches nothing while `` `var $n = $i` ``, `` `const $n = $i` ``, and literal-name `` `let a = $i` `` all match; (b) export-vs-non-export is indistinguishable (no export node/snippet binds). `export var` alone is matchable, but the rule needs both forms and must stay silent on non-exported `let`/`var`. Independently re-verified against the real CLI.
+14. **`no-ts-suppression-comments` and `no-block-comment` reclassified plugin → unenforceable** — comment-blindness, identical to `no-triple-slash-reference` (#9 above). Documented `describe.skip` test suites left in `tests/` as reproducible evidence; no no-op `.grit` shipped.
+
+Net: **plugin total ≈ 21 − 3 = 18** enforceable plugins planned; 10 now `done` (incl. `no-object-constructor`). The 3 newly-unenforceable rules are documented, never faked.

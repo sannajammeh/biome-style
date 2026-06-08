@@ -37,12 +37,34 @@ Setup is two steps, because Biome distributes config and plugins through differe
 {
   "extends": ["biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-constructor.grit"
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-constructor.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/new-parens.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-import-equals-require.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-multiline-string.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
+    "./node_modules/biome-style/guides/google-typescript/plugins/no-function-expression.grit"
   ]
 }
 ```
 
-The full copy-paste plugin list is maintained alongside the [coverage matrix](guides/google-typescript/COVERAGE.md). Plugins are granular (one rule per file) so you can drop the ones you don't want and tune severity per rule.
+Plugins are granular (one rule per file) so you can drop the ones you don't want and tune severity per rule. Each plugin maps to a directive in the [coverage matrix](guides/google-typescript/COVERAGE.md); the matrix is the source of truth for which directives ship as plugins (and which are `unenforceable`).
+
+| Plugin | Directive | Severity |
+| --- | --- | --- |
+| `no-object-constructor` | Do not use the `Object()` constructor | error |
+| `no-private-identifier` | Use the `private` modifier, not `#private` fields | error |
+| `new-parens` | Constructor calls must use parentheses (`new Foo()`) | error |
+| `no-angle-bracket-assertion` | Type assertions use `as`, not `<T>x` | error |
+| `no-import-equals-require` | No `import x = require(...)` | error |
+| `no-multiline-string` | No line continuations in strings | error |
+| `no-unary-plus` | No unary `+` to coerce to number | error |
+| `no-parseint-base10` | No `parseInt`/`parseFloat` for base-10 parsing | error |
+| `no-nullable-type-alias` | Type aliases must not include `\| null` / `\| undefined` | error |
+| `no-function-expression` | Use arrow functions, not function expressions | error |
 
 Then run Biome as usual:
 

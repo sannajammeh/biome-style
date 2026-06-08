@@ -1,7 +1,18 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
   "extends": ["./guides/google-typescript/biome.json"],
-  "plugins": ["./guides/google-typescript/plugins/no-object-constructor.grit"],
+  "plugins": [
+    "./guides/google-typescript/plugins/no-object-constructor.grit",
+    "./guides/google-typescript/plugins/no-private-identifier.grit",
+    "./guides/google-typescript/plugins/new-parens.grit",
+    "./guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
+    "./guides/google-typescript/plugins/no-import-equals-require.grit",
+    "./guides/google-typescript/plugins/no-multiline-string.grit",
+    "./guides/google-typescript/plugins/no-unary-plus.grit",
+    "./guides/google-typescript/plugins/no-parseint-base10.grit",
+    "./guides/google-typescript/plugins/no-nullable-type-alias.grit",
+    "./guides/google-typescript/plugins/no-function-expression.grit"
+  ],
   "files": {
     "includes": ["**", "!**/tests/**", "!**/node_modules/**", "!**/.claude/**"]
   }

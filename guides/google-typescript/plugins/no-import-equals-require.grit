@@ -1,0 +1,10 @@
+// Google TypeScript Style Guide — do not use `import x = require('...')`.
+// Bans the TypeScript import-equals-require form in favour of ESM imports.
+// The built-in `noCommonJs` does NOT catch this form (verified), which is why
+// this plugin exists. Stays silent on ESM imports and on non-require
+// import-equals (`import x = SomeNamespace.Y`).
+language js
+
+`import $x = require($_)` as $node where {
+  register_diagnostic(span=$node, message="Do not use `import x = require('...')`; use an ESM `import` instead.", severity="error")
+}

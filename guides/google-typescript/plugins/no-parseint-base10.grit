@@ -1,0 +1,18 @@
+// Google TypeScript Style Guide — parse decimals with `Number()`; reserve
+// `parseInt` for a non-decimal radix. `parseFloat` is always banned. `parseInt`
+// is banned when it has no radix (defaults to base 10) or an explicit base-10
+// radix. A non-decimal radix such as `parseInt(x, 16)` is the legitimate use and
+// stays silent.
+//
+// The arms cannot be folded into one snippet: a lone `parseInt($x)` also matches
+// the two-argument form in Biome's CST, so the no-radix arm must exclude
+// `parseInt($a, $b)`, and the base-10 arm must positively bind the radix to `10`.
+language js
+
+or {
+  `parseFloat($...)`,
+  `parseInt($x)` as $single where { $single <: not `parseInt($a, $b)` },
+  `parseInt($x, $radix)` where { $radix <: `10` }
+} as $call where {
+  register_diagnostic(span=$call, message="Use `Number()` to parse decimals; reserve `parseInt` for a non-decimal radix.", severity="error")
+}

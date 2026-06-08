@@ -1,0 +1,12 @@
+// Google TypeScript Style Guide — type aliases must not bake in nullability.
+// Flags `type X = ... | null` / `... | undefined` so that nullability is
+// expressed at the use site, not hidden inside an alias.
+language js
+
+`type $name = $body` as $alias where {
+  $body <: contains or {
+    `null`,
+    `undefined`
+  },
+  register_diagnostic(span=$alias, message="Type aliases must not include `| null` or `| undefined`; express nullability at the use site instead.", severity="error")
+}
