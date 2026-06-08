@@ -47,7 +47,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | Import paths must be paths (relative or root-based) | must | unenforceable | — | — | n/a | Resolution policy; no syntactic signal. |
-| Prefer relative imports within a project | should | plugin | `plugins/prefer-relative-import.grit` | warn | planned | Heuristic; flag bare/absolute project imports. May be noisy — validate. |
+| Prefer relative imports within a project | should | unenforceable | — | — | n/a | **Reclassified plugin → unenforceable (policy, not engine):** GritQL *can* match import specifiers (verified), but classifying a specifier as "within project" vs external needs resolver/tsconfig-`paths` knowledge unavailable to a single-file syntax-only plugin — a bare `mymodule` is indistinguishable from an npm package, and any prefix allow-list (`@/`,`src/`,…) is per-project policy, not a guide rule. Left as an opt-in project-local plugin; fixtures kept as a template. See `tests/.../prefer-relative-import.test.ts`. |
 | Limit `../../../` parent steps | consider | unenforceable | — | — | n/a | |
 | Namespace vs named imports (both allowed; preferences) | prefer | unenforceable | — | — | n/a | Preference, context-dependent. |
 | Renaming imports allowed; fix collisions via namespace/rename | may | builtin | `noUselessRename` | warn | planned | Only the *useless* rename (`{a as a}`) is mechanizable. |
@@ -130,13 +130,13 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| Prefer function declarations for named functions | prefer | plugin | `plugins/prefer-function-declaration.grit` | warn | planned | Flag `const f = () => …` / `const f = function …` at module scope. Heuristic — `useArrowFunction` is the opposite, do not enable. |
+| Prefer function declarations for named functions | prefer | plugin | `plugins/prefer-function-declaration.grit` | warn | done | Flags `const f = () => …` / `const f = function …` at **module scope only**. Scope discriminated by `$fn <: not within JsFunctionBody()` — nested helpers, callbacks, and class arrow props (`no-arrow-property`) stay silent. `useArrowFunction` is the opposite, do not enable. |
 | Nested functions may use declarations or arrows | may | unenforceable | — | — | n/a | |
 | Do not use function expressions (use arrows) | must | plugin | `plugins/no-function-expression.grit` | error | done | Exempt generators and explicit `this`-rebinding. |
 | Concise arrow body only if return value used | — | unenforceable | — | — | n/a | Type/flow-dependent. |
 | Function decls/exprs must not use `this` (unless rebinding) | must | unenforceable | — | — | n/a | Hard to scope syntactically without false positives. |
 | Prefer arrow callbacks over named callbacks (e.g. `.map(parseInt)`) | avoid | unenforceable | — | — | n/a | Type/signature-dependent. |
-| Classes usually shouldn't have arrow-function properties | should | plugin | `plugins/no-arrow-property.grit` | warn | planned | Judgement rule — `info`/`warn`, expect opt-outs. |
+| Classes usually shouldn't have arrow-function properties | should | plugin | `plugins/no-arrow-property.grit` | info | done | Judgement rule with legitimate opt-outs (bound-`this` handlers) → severity `info`. `JsPropertyClassMember(value=JsInitializerClause(expression=JsArrowFunctionExpression()))`; the initializer must *be* an arrow, so `x = foo(() => {})` and object-literal arrows stay silent. |
 | Event handlers (arrow vs property) | may | unenforceable | — | — | n/a | |
 | Parameter initializers: no side effects, keep simple | must | unenforceable | — | — | n/a | |
 | Use rest params, never name a var/param `arguments` | must | builtin | `noArguments` | error | planned | |
@@ -194,8 +194,8 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | Directive | Force | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | Do not define new decorators | must | unenforceable | — | — | n/a | Framework-knowledge dependent. |
-| Decorator immediately precedes symbol, no blank line after | must | plugin | `plugins/no-blank-line-after-decorator.grit` | warn | planned | Whitespace-sensitive; verify GritQL can see the gap. |
-| JSDoc before decorators (not between) | — | plugin | `plugins/jsdoc-before-decorator.grit` | warn | planned | See also §8.13. |
+| Decorator immediately precedes symbol, no blank line after | must | unenforceable | — | — | n/a | **Reclassified plugin → unenforceable (whitespace-trivia blindness).** Decorators ARE visible (`JsDecorator()` matches), but the blank line is whitespace trivia: `JsClassDeclaration() <: contains JsDecorator()` fires *identically* on adjacent vs blank-line fixtures, decorator snippets embedding the gap match nothing, and 2.4.16 GritQL has no line/span/trivia predicate to compare positions. Documented `describe.skip` + fixtures as evidence; no `.grit` shipped. |
+| JSDoc before decorators (not between) | — | unenforceable | — | — | n/a | **Reclassified plugin → unenforceable (comment-blindness).** JSDoc is a comment; `comment()`/`js_comment()`/`JsComment()` fail to compile, the JSDoc snippet/regex compile but match nothing, while the `JsDecorator()` control fires on the same fixture. Same wall as §9/§8.13/#17. Documented `describe.skip` + fixtures; no `.grit` shipped. |
 
 ### 5.11 Disallowed features
 
@@ -271,7 +271,7 @@ This matrix classifies **every directive** in the [Google TypeScript Style Guide
 | No redundant JSDoc type annotations (`@param {type}`, `@implements`, `@enum`, `@private`, `@override`) in TS | do not | plugin | `plugins/no-jsdoc-types.grit` | warn | unenforceable | **Comment-blindness** (same wall as #9/#13/#15): `comment()`/`js_comment()`/`Jsdoc()`/`trivia()` fail to compile; JSDoc-text snippets/regex match nothing. Documented `describe.skip` + fixtures as proof; no `.grit` shipped. |
 | Comments must add information | — | unenforceable | — | — | n/a | |
 | Parameter-name comment style (`/* name= */`) | should | unenforceable | — | — | n/a | |
-| Documentation goes before decorators | — | plugin | `plugins/jsdoc-before-decorator.grit` | warn | planned | Same plugin as §5.10. |
+| Documentation goes before decorators | — | unenforceable | — | — | n/a | Same rule as §5.10 — reclassified `unenforceable` (comment-blindness). |
 
 ## 10. Policies
 
@@ -334,3 +334,19 @@ Building the `ready-for-agent` plugins (issues #18–#24) against Biome 2.4.16. 
 17. **`no-jsdoc-types` reclassified plugin → unenforceable** — comment-blindness, the fourth instance (after #9/#13/#15). Verified against the real CLI: `comment()`, `js_comment()`, `multiline_comment()`, `Jsdoc()`, `trivia()` all **fail to compile**; `\`/** @param {$type} $name */\``, `\`@param\``, and `r"@param"` all **compile but match nothing**. Documented `describe.skip` suite + fixtures left as reproducible evidence; no no-op `.grit` shipped.
 
 Net: **16 of 18 enforceable plugins now `done`**; 4 rules reclassified `unenforceable` across both fan-outs, all documented and never faked. Remaining: the 5 `ready-for-human` plugins (#25–#29).
+
+### Implementation findings (2026-06-08, Tier C — the `ready-for-human` plugins)
+
+Resolving the 5 HITL-gated plugins (issues #25–#29) against Biome 2.4.16. Each was filed `ready-for-human` because it needed a human policy call first. **2 shipped `done`, 3 reclassified `unenforceable`** (1 by policy, 2 by trivia-blindness):
+
+18. **Shipped (2):**
+    - `no-arrow-property` (#27, **`info`** — human chose advisory severity over `warn` because bound-`this` handlers are a legitimate opt-out): `JsPropertyClassMember(value=JsInitializerClause(expression=JsArrowFunctionExpression()))`. The initializer must *be* an arrow, so `x = foo(() => {})` and object-literal arrows stay silent; methods and non-arrow props are untouched.
+    - `prefer-function-declaration` (#26, `warn`, **module-scope only** per the human scope decision): `JsVariableDeclarator(initializer=JsInitializerClause(expression=$fn))` where `$fn <: or { JsArrowFunctionExpression(), JsFunctionExpression() }` and **`$fn <: not within JsFunctionBody()`**. The `not within JsFunctionBody()` guard is what restricts it to module scope — nested helpers have a function-body ancestor and stay silent, as do callbacks and class arrow props (`no-arrow-property`'s job). New gotcha: `not within JsFunctionBody()` reliably expresses "top-level / module scope" because module items have no function-body ancestor.
+
+19. **`prefer-relative-import` (#25) reclassified plugin → unenforceable — policy, not engine.** The human decided within-project-vs-external is not a guide-universal syntactic signal. Verified the engine *can* match specifiers (`` `import $clause from $src` `` + `` $src <: r".*foo.*" `` fires on `@/foo`, silent on `react`/`./local`), so this is **not** the comment/whitespace wall — the blocker is semantic: classifying a specifier needs resolver/tsconfig-`paths` knowledge a single-file plugin lacks, and any prefix allow-list is per-project policy. Left as an opt-in project-local plugin; `describe.skip` + fixtures kept as a lift-and-adopt template.
+
+20. **`no-blank-line-after-decorator` (#28) reclassified plugin → unenforceable — whitespace-trivia blindness (new wall).** Decorators ARE visible (`JsDecorator()` matches; `JsClassDeclaration() <: contains JsDecorator()` matches a decorated class), but the *blank line* is whitespace trivia: that node pattern fires **identically** on adjacent vs blank-line fixtures (1 = 1), decorator snippets embedding the newline gap compile but match nothing, and 2.4.16 GritQL exposes no line-number/span-arithmetic/trivia predicate to compare the decorator's end position with the symbol's start. This is the whitespace sibling of comment-blindness. Documented `describe.skip` + fixtures; no `.grit` shipped.
+
+21. **`jsdoc-before-decorator` (#29) reclassified plugin → unenforceable — comment-blindness (fifth instance, after #9/#13/#15/#17).** JSDoc is a comment: `comment()`/`js_comment()`/`JsComment()` **fail to compile**; the JSDoc snippet and `r"doc"` regex compile but match nothing; the `JsDecorator()` control fires on the same between-the-decorator fixture, proving the engine runs and the negative is comment-blindness. Documented `describe.skip` + fixtures; no `.grit` shipped.
+
+Net across all tiers: **18 of 18 enforceable plugins `done`**; **7 rules reclassified `unenforceable`** (5 comment-blindness, 1 whitespace-trivia-blindness, 1 policy), all with reproducible CLI evidence and never faked. **Tier C complete — no `planned` plugins remain.**

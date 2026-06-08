@@ -1,0 +1,13 @@
+// Google TypeScript Style Guide — classes usually shouldn't have
+// arrow-function properties (§5.5). Flags a class property whose initializer is
+// directly an arrow function (`f = () => {}`). Methods (`f() {}`) and non-arrow
+// property values (`x = 0`, `x = foo(() => {})`) stay silent: the initializer
+// must BE an arrow, not merely contain one. Advisory severity (`info`) — bound
+// `this` handlers are a legitimate opt-out.
+language js
+
+JsPropertyClassMember(value=$init) where {
+  $init <: JsInitializerClause(expression=$expr),
+  $expr <: JsArrowFunctionExpression(),
+  register_diagnostic(span=$expr, message="Avoid arrow-function class properties; use a method unless you need a bound `this`.", severity="info")
+}
