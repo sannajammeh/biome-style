@@ -13,8 +13,8 @@ Diagnostic severity mirrors the guide's force of language: *must*/*never* → `e
 ## Install
 
 ```sh
-bun add -d biome-style @biomejs/biome
-# or: npm i -D biome-style @biomejs/biome
+bun add -d @sannajammeh/biome-style @biomejs/biome
+# or: npm i -D @sannajammeh/biome-style @biomejs/biome
 ```
 
 GritQL plugins are still maturing in Biome — pin a known-good Biome version. This guide is verified against **Biome 2.4.16**.
@@ -27,7 +27,7 @@ Setup is two steps, because Biome distributes config and plugins through differe
 
 ```json
 {
-  "extends": ["biome-style/google-typescript"]
+  "extends": ["@sannajammeh/biome-style/google-typescript"]
 }
 ```
 
@@ -37,9 +37,9 @@ Setup is two steps, because Biome distributes config and plugins through differe
 
 ```json
 {
-  "extends": ["biome-style/google-typescript"],
+  "extends": ["@sannajammeh/biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/biome-style/guides/google-typescript/plugins/all.grit"
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/all.grit"
   ]
 }
 ```
@@ -50,24 +50,24 @@ New rules join the bundle automatically — nothing to re-sync as the guide grow
 
 ```json
 {
-  "extends": ["biome-style/google-typescript"],
+  "extends": ["@sannajammeh/biome-style/google-typescript"],
   "plugins": [
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-constructor.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/new-parens.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-import-equals-require.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-multiline-string.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-function-expression.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-object-literal-assertion.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/class-computed-symbol-only.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-defineproperty-accessor.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/simple-param-destructuring.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/array-destructuring-default.grit",
-    "./node_modules/biome-style/guides/google-typescript/plugins/no-hex-escape-for-known.grit"
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-object-constructor.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-private-identifier.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/new-parens.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-angle-bracket-assertion.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-import-equals-require.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-multiline-string.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-unary-plus.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-parseint-base10.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-nullable-type-alias.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-function-expression.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-object-literal-assertion.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/class-computed-symbol-only.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-defineproperty-accessor.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/simple-param-destructuring.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/array-destructuring-default.grit",
+    "./node_modules/@sannajammeh/biome-style/guides/google-typescript/plugins/no-hex-escape-for-known.grit"
   ]
 }
 ```
@@ -105,6 +105,26 @@ biome check .
 - `tests/<guide>/` — fixture-based tests that run the real Biome CLI per plugin (kept out of `guides/` so they aren't published). The per-rule fixture convention (`fixtures/<rule>/{valid,invalid}.ts` + `<rule>.test.ts`) is documented in [`tests/google-typescript/harness.ts`](tests/google-typescript/harness.ts); every plugin slice follows it verbatim.
 
 The repo's own `biome.json` is a dev config that extends the shared config and wires the plugins by local path, both to test them and to dogfood the guide on this codebase.
+
+## Releasing
+
+Releases are cut **manually** by a maintainer with [release-it](https://github.com/release-it/release-it). It bumps the version, commits and tags (`vX.Y.Z`), pushes, creates a GitHub release, and publishes to npm. The npm `publish` step runs `prepublishOnly`, which regenerates each guide's `all.grit` bundle into the tarball.
+
+Prerequisites: be on a clean `main`, logged in to npm (`npm whoami`) with publish rights to the `@sannajammeh` scope, and authenticated with the GitHub CLI (`gh auth status`). The `release` script sources a `GITHUB_TOKEN` from `gh auth token` automatically (and respects one already in your environment), so the GitHub release step needs no manual export.
+
+```sh
+# First publish — release the current 0.0.1 in package.json without bumping:
+bun run release -- --no-increment
+
+# Subsequent releases — pick the next version (interactive) or specify it:
+bun run release            # prompts for patch/minor/major
+bun run release -- minor   # or name the bump
+
+# Rehearse without publishing or pushing:
+bun run release -- --dry-run
+```
+
+Lint and the full test suite run automatically before any release (`before:init` hook); a red tree aborts the release.
 
 ## Status
 
