@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `no-new-object`: use an object literal `{}`,
+// not the `Object` constructor. ESLint's `no-new-object` flags only `new
+// Object()` (a bare `Object()` call is left alone), so this is narrower than the
+// Google guide's `no-object-constructor`. The built-in
+// `useConsistentBuiltinInstantiation` is unsuitable: it would rewrite toward
+// `new Object()`, the opposite of the guide.
+language js
+
+`new Object($...)` as $call where {
+  register_diagnostic(span=$call, message="Do not use the `Object` constructor; use an object literal `{}` instead.", severity="error")
+}

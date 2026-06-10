@@ -12,7 +12,9 @@
   },
   "exports": {
     "./google-typescript": "./guides/google-typescript/biome.json",
-    "./google-typescript/*": "./guides/google-typescript/*"
+    "./google-typescript/*": "./guides/google-typescript/*",
+    "./airbnb-javascript": "./guides/airbnb-javascript/biome.json",
+    "./airbnb-javascript/*": "./guides/airbnb-javascript/*"
   },
   "scripts": {
     "lint": "biome check .",

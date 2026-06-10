@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `no-multi-str`: do not use multiline strings
+// via `\` line continuations. Flags single-/double-quoted string literals
+// containing a backslash directly before a newline. Template literals are a
+// separate CST node (not matched by `string()`), so multi-line backtick strings
+// and ordinary concatenation stay silent. Same logic as the Google guide's
+// `no-multiline-string` (self-contained per ADR-0002).
+language js
+
+$s where { $s <: string(), $s <: r".*\\\n.*" } where {
+  register_diagnostic(span=$s, message="Do not use multiline strings (line continuations); use a template literal or string concatenation instead.", severity="error")
+}

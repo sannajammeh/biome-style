@@ -1,0 +1,14 @@
+// Airbnb JavaScript Style Guide — `radix` (mode `always`): always pass an
+// explicit radix to `parseInt`. Flags the single-argument call `parseInt(x)`;
+// any two-argument call `parseInt(x, radix)` — including the common
+// `parseInt(x, 10)` — is the correct form and stays silent. This is the OPPOSITE
+// of the Google guide's `no-parseint-base10`, which bans `parseInt(x, 10)`.
+//
+// A lone `parseInt($x)` snippet also matches the two-argument form in Biome's
+// CST, so the no-radix case is isolated by excluding `parseInt($a, $b)`.
+language js
+
+`parseInt($x)` as $call where {
+  $call <: not `parseInt($a, $b)`,
+  register_diagnostic(span=$call, message="Missing radix parameter; always pass an explicit radix, e.g. `parseInt(value, 10)`.", severity="error")
+}
