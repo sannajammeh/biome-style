@@ -3,6 +3,14 @@
   "version": "0.0.1",
   "description": "Published coding style guides ported into Biome — formatter options, built-in lint rules, and GritQL plugins. First guide: Google TypeScript Style Guide.",
   "license": "MIT",
+  "homepage": "https://github.com/sannajammeh/biome-style",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sannajammeh/biome-style.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sannajammeh/biome-style/issues"
+  },
   "type": "module",
   "files": [
     "guides"
