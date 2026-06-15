@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `no-continue`: don't use `continue`; it can
+// hurt readability of the control flow. This covers both the plain
+// `continue;` and the labeled form `continue label;` — the `JsContinueStatement`
+// node matches both. A bare `` `continue` `` backtick snippet does NOT compile
+// as an expression in Biome 2.4.16, so the node-kind pattern is used here.
+// `break` and normal loop bodies are left alone.
+language js
+
+JsContinueStatement() as $node where {
+  register_diagnostic(span=$node, message="Do not use `continue`; refactor the loop's control flow (e.g. invert the condition) instead.", severity="warn")
+}

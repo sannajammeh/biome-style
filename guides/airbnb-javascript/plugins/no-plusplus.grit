@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `no-plusplus`: avoid the increment (`++`) and
+// decrement (`--`) unary operators, in both prefix (`++i`, `--i`) and postfix
+// (`i++`, `i--`) forms. Prefer explicit arithmetic assignment, e.g. `i += 1`.
+language js
+
+or {
+  JsPreUpdateExpression(),
+  JsPostUpdateExpression()
+} as $node where {
+  register_diagnostic(span=$node, message="Unary `++`/`--` are not allowed; use `+= 1` / `-= 1` instead.", severity="warn")
+}

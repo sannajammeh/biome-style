@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `no-script-url`: never use `javascript:` URLs.
+// Flags single-/double-quoted string literals whose text begins with the
+// `javascript:` scheme (e.g. `"javascript:void(0)"`). Ordinary URL strings like
+// `"https://example.com"` or `"/path"` — and lookalikes like `"java"` — stay
+// silent. Mirrors `no-multi-str`'s `$s <: string()` + raw-regex shape; the regex
+// allows for the opening quote (any char) before the scheme.
+language js
+
+$s where { $s <: string(), $s <: r".javascript:.*" } where {
+  register_diagnostic(span=$s, message="Do not use `javascript:` URLs; they are a form of eval and a security risk.", severity="error")
+}

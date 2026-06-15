@@ -1,0 +1,28 @@
+// Airbnb JavaScript Style Guide — `class-methods-use-this`: a class instance
+// method that never references `this` should be a static method or a standalone
+// function. Flags any (non-static) class method whose body contains no `this`
+// expression.
+//
+// Scope is a SYNTACTIC SUBSET of the ESLint rule, and exploits Biome's CST:
+//   - `JsMethodClassMember` is a distinct node kind from `JsConstructorClassMember`,
+//     `JsGetterClassMember`, and `JsSetterClassMember`, so constructors, getters,
+//     and setters are EXCLUDED for free — they never match this pattern.
+//   - The `static` guard `not contains JsStaticModifier()` drops static methods,
+//     which have no `this` semantics.
+//   - `not contains `this`` is true only when no `this` expression appears
+//     anywhere in the method (body or computed name). A bare `this` snippet
+//     matches a `JsThisExpression`, so `this.x`, `this.fn()`, etc. all count.
+//
+// Known subset caveats (acceptable per the spike):
+//   - A method that references `this` only inside a NESTED non-arrow function
+//     (which has its own `this`) is still treated as "uses this" and stays
+//     silent — `contains` is unscoped. ESLint is stricter here.
+//   - Private methods (`#m()`) parse as `JsMethodClassMember` inside a
+//     `JsPrivateClassMember` wrapper and are covered the same way.
+language js
+
+JsMethodClassMember() as $m where {
+  $m <: not contains JsStaticModifier(),
+  $m <: not contains `this`,
+  register_diagnostic(span=$m, message="Class method does not use `this`; make it `static` or a standalone function.", severity="error")
+}

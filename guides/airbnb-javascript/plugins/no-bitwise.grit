@@ -1,0 +1,40 @@
+// Airbnb JavaScript Style Guide — `no-bitwise`: do not use bitwise operators.
+// Flags the binary operators `&` `|` `^` `<<` `>>` `>>>`, the unary `~`, and
+// every bitwise-assignment form (`&=` `|=` `^=` `<<=` `>>=` `>>>=`). Logical
+// `&&` / `||` and their assignment forms (`&&=` `||=` `??=`) are a different CST
+// shape and stay silent.
+//
+// The binary/unary cases are plain backtick snippets — callee/operator-precise,
+// so `&&` never matches `$l & $r`. The compound-assignment cases CANNOT be
+// expressed as snippets: a metavariable on the left of `&=` (`$l &= $r`) fails
+// to compile in Biome 2.4.16 (only a concrete target like `h &= $r` parses).
+// So assignments are matched via the `JsAssignmentExpression` node kind, then
+// discriminated by regex over the node text: the logical-assign forms are
+// excluded first (they contain `&&` / `||` / `??`), and what remains is matched
+// against each bitwise-assign operator. (`>>>=` is caught by the `>>=` substring;
+// regex alternation groups `(a|b)` fail to compile, hence the separate `or`.)
+language js
+
+or {
+  `$l & $r`,
+  `$l | $r`,
+  `$l ^ $r`,
+  `$l << $r`,
+  `$l >> $r`,
+  `$l >>> $r`,
+  `~$x`,
+  JsAssignmentExpression() as $assign where {
+    $assign <: not r".*&&=.*",
+    $assign <: not r".*\|\|=.*",
+    $assign <: not r".*\?\?=.*",
+    or {
+      $assign <: r".*&=.*",
+      $assign <: r".*\|=.*",
+      $assign <: r".*\^=.*",
+      $assign <: r".*<<=.*",
+      $assign <: r".*>>=.*"
+    }
+  }
+} as $node where {
+  register_diagnostic(span=$node, message="Do not use bitwise operators.", severity="warn")
+}

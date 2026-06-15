@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `no-floating-decimal`: do not omit a digit on
+// either side of the decimal point. Flags numeric literals with a leading dot
+// (`.5`) or a trailing dot (`5.`); the conforming `0.5`, `5.0`, and integers
+// (`5`, `42`) stay silent. `number()` binds the numeric-literal node; its text
+// is matched against the two dot shapes. Regex alternation groups `(a|b)` fail
+// to compile in Biome 2.4.16, so the leading-dot and trailing-dot patterns are
+// split under an `or { }` block.
+language js
+
+$n where {
+  $n <: number(),
+  or { $n <: r"^\..*", $n <: r".*\.$" }
+} where {
+  register_diagnostic(span=$n, message="Do not use floating decimals; include a digit on both sides of the decimal point, e.g. `0.5` or `5.0`.", severity="error")
+}

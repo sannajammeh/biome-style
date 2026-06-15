@@ -1,0 +1,16 @@
+// Airbnb JavaScript Style Guide — `symbol-description`: always give `Symbol`s a
+// description. Flags the no-argument call `Symbol()`; a described `Symbol('x')`
+// is the correct form and stays silent, as is `Symbol.for(...)` (a member-call
+// callee that the bare `Symbol(...)` snippet never matches).
+//
+// Unlike `radix` — where a lone `parseInt($x)` snippet also matches the
+// two-argument form, forcing a `not parseInt($a, $b)` exclusion — the empty
+// `Symbol()` snippet is arity-precise in Biome's CST: it matches ONLY the
+// zero-argument call, never `Symbol($x)`. So no exclusion guard is needed
+// (and adding `not Symbol($x)` is actively wrong, since `Symbol($x)` also
+// matches the empty call and would suppress every match).
+language js
+
+`Symbol()` as $call where {
+  register_diagnostic(span=$call, message="`Symbol` must have a description, e.g. `Symbol('mySymbol')`.", severity="error")
+}

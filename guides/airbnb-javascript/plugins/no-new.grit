@@ -1,0 +1,17 @@
+// Airbnb JavaScript Style Guide — `no-new`: do not use `new` for side effects.
+// A `new` expression used as a standalone expression statement (`new Foo();`)
+// discards the constructed object — the only reason to write it is a
+// side-effecting constructor, which the guide bans. When the result is used
+// (`const x = new Foo()`, `return new Foo()`, `foo(new Bar())`) the rule stays
+// silent.
+//
+// Statement position is expressed by the trailing semicolon in the snippet:
+// `new $c($...);` matches only when the `new` expression IS the whole
+// expression statement (the `;` terminates it). An inner `new` whose result is
+// consumed — e.g. `const x = new Foo();` — does not match, because there the
+// `;` belongs to the surrounding variable statement, not the `new` expression.
+language js
+
+`new $c($...);` as $node where {
+  register_diagnostic(span=$node, message="Do not use `new` for side effects; a `new` expression as a statement discards the constructed object.", severity="error")
+}

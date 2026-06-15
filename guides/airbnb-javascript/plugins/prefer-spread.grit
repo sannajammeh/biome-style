@@ -1,0 +1,11 @@
+// Airbnb JavaScript Style Guide — `prefer-spread`: prefer the spread operator
+// over `Function.prototype.apply()` for variadic calls — write `foo(...args)`,
+// not `foo.apply(null, args)`. SYNTACTIC SUBSET: this flags every member call of
+// the form `$f.apply(...)` regardless of argument shape (no this-arg / args
+// analysis). Snippets are callee-precise, so `.call(...)`, ordinary calls
+// `foo(args)`, and spread calls `foo(...args)` are NOT matched.
+language js
+
+`$f.apply($...)` as $call where {
+  register_diagnostic(span=$call, message="Prefer the spread operator over `Function.prototype.apply()`: write `foo(...args)` instead of `foo.apply(thisArg, args)`.", severity="warn")
+}

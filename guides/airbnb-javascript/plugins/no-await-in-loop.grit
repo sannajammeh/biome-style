@@ -1,0 +1,24 @@
+// Airbnb JavaScript Style Guide — `no-await-in-loop`: do not `await` inside a
+// loop body. Awaiting each iteration serializes work that is usually meant to
+// run in parallel; collect the promises and `await Promise.all(...)` instead.
+// Flags an `await` lexically within any loop statement — `for`, `for-of`,
+// `for-in`, `while`, `do-while`.
+//
+// This is a SYNTACTIC subset of ESLint's rule: it fires on any `await` whose
+// ancestor is a loop, including an `await` inside a function nested in a loop
+// (which ESLint allows, since that await belongs to the inner function, not the
+// loop). Conversely an `await` inside `items.map(async (i) => await g(i))` is
+// NOT within a loop — `.map` is a call expression — so the common
+// `Promise.all(items.map(...))` parallel pattern stays silent.
+language js
+
+`await $x` as $node where {
+  $node <: within or {
+    JsForStatement(),
+    JsForOfStatement(),
+    JsForInStatement(),
+    JsWhileStatement(),
+    JsDoWhileStatement()
+  },
+  register_diagnostic(span=$node, message="Unexpected `await` inside a loop; collect the promises and `await Promise.all(...)` to run them in parallel.", severity="error")
+}

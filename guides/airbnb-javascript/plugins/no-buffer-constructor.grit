@@ -1,0 +1,13 @@
+// Airbnb JavaScript Style Guide — `no-buffer-constructor`: never use the
+// deprecated `Buffer` constructor. Both `new Buffer(...)` and a bare `Buffer(...)`
+// call are flagged; use `Buffer.from(...)` / `Buffer.alloc(...)` instead. Those
+// safe factory methods are member-expression callees, so the callee-precise
+// `Buffer($...)` snippet leaves them silent.
+language js
+
+or {
+  `new Buffer($...)`,
+  `Buffer($...)`
+} as $call where {
+  register_diagnostic(span=$call, message="Do not use the deprecated `Buffer` constructor; use `Buffer.from(...)` or `Buffer.alloc(...)` instead.", severity="error")
+}

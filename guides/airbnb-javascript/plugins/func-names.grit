@@ -1,0 +1,13 @@
+// Airbnb JavaScript Style Guide — `func-names`: require named function
+// EXPRESSIONS; flag anonymous ones (`const f = function () {}`,
+// `arr.map(function (x) { ... })`). A named expression
+// (`const f = function named() {}`) carries an `id` and stays silent. Function
+// DECLARATIONS (`function foo() {}`) are a distinct CST node (always named) and
+// arrow functions are out of scope — neither is a `JsFunctionExpression`, so
+// both are untouched. The anonymous case is the function expression whose `id`
+// field is absent, matched with the empty pattern `id=.`.
+language js
+
+JsFunctionExpression(id=.) as $fn where {
+  register_diagnostic(span=$fn, message="Anonymous function expressions must be named: write `function named() {}` instead of `function () {}`.", severity="warn")
+}

@@ -1,0 +1,17 @@
+// Airbnb JavaScript Style Guide — `no-proto`: never use the deprecated
+// `__proto__` property. Flags member access whose property is `__proto__`
+// (`obj.__proto__`, `foo.__proto__ = bar`); use `Object.getPrototypeOf` /
+// `Object.setPrototypeOf` instead. Normal property access (e.g. `obj.proto`)
+// stays silent.
+//
+// A bare `$o.__proto__` snippet matches a read but, in Biome's CST, does NOT
+// match the member access when it is the target of an assignment — so the
+// assignment shape `$o.__proto__ = $v` is matched explicitly under `or`.
+language js
+
+or {
+  `$o.__proto__`,
+  `$o.__proto__ = $v`
+} as $node where {
+  register_diagnostic(span=$node, message="Do not use `__proto__`; it is deprecated. Use `Object.getPrototypeOf` / `Object.setPrototypeOf` instead.", severity="error")
+}

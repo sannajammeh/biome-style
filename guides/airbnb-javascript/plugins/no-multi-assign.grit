@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `no-multi-assign`: do not chain variable
+// assignments (`a = b = c`). Chaining creates implicit globals (`b` and `c` here
+// leak to the global scope when undeclared) and couples the variables' values.
+//
+// A chained assignment is an assignment expression whose right-hand side is
+// itself an assignment, so we match a `JsAssignmentExpression` whose `right`
+// field is another `JsAssignmentExpression`. The backtick snippet `$a = $b`
+// does not match the chained form in Biome 2.4.16's CST (it only binds simple
+// right-hand sides), so the node-kind pattern with a field binding is required.
+// Each link in a chain is flagged. A single assignment `a = c` stays silent.
+language js
+
+JsAssignmentExpression(right=JsAssignmentExpression()) as $node where {
+  register_diagnostic(span=$node, message="Do not chain variable assignments; assign each variable in its own statement.", severity="error")
+}

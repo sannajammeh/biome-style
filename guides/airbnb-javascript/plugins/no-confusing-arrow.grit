@@ -1,0 +1,16 @@
+// Airbnb JavaScript Style Guide — `no-confusing-arrow` (option `allowParens: true`):
+// an arrow whose body is a conditional (ternary) expression looks like a
+// comparison — `a => b ? c : d` is easily misread as `a >= b ? c : d`. The
+// confusing form is the UNPARENTHESIZED body; wrapping the ternary in parens
+// (`a => (b ? c : d)`) disambiguates it and is the allowed form.
+//
+// Parentheses are NOT trivia here: a parenthesized arrow body binds to a
+// `JsParenthesizedExpression` CST node, so the ternary snippet `$c ? $t : $e`
+// does not match through it. The pattern therefore fires only on the bare,
+// unparenthesized conditional body — honoring `allowParens: true` faithfully.
+language js
+
+`$params => $body` as $node where {
+  $body <: `$cond ? $consequent : $alternate`,
+  register_diagnostic(span=$node, message="Confusing arrow: an unparenthesized conditional body reads like a comparison. Wrap it in parentheses, e.g. `(x) => (a ? b : c)`.", severity="warn")
+}

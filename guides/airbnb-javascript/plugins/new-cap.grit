@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `new-cap` (option `newIsCap: true`): `new`
+// must be used with a Capitalized constructor name. SYNTACTIC SUBSET: this
+// flags `new` on a plain lowercase-initial identifier callee (`new foo()`,
+// `new bar()`) only. Capitalized callees (`new Foo()`, `new MyClass()`),
+// member-expression callees (`new ns.Thing()`), and ordinary function calls
+// (`foo()`) stay silent — the latter two are out of the syntactic subset and
+// left untouched (`capIsNew` is off in Airbnb, so a non-`new` capitalized call
+// is not flagged either).
+language js
+
+`new $callee($...)` as $node where {
+  $callee <: JsIdentifierExpression(),
+  $callee <: r"^[a-z].*",
+  register_diagnostic(span=$node, message="A constructor name must be capitalized: write `new Foo()`, not `new foo()`.", severity="error")
+}

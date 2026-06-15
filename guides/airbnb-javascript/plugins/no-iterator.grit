@@ -1,0 +1,16 @@
+// Airbnb JavaScript Style Guide — `no-iterator`: don't use the legacy
+// `__iterator__` property. It is non-standard and deprecated; use the iteration
+// protocol via `Symbol.iterator` instead. `Symbol.iterator` and normal property
+// access are left alone.
+//
+// In Biome's CST a `$o.__iterator__` read snippet does NOT match when the member
+// expression is an assignment *target* (`Foo.prototype.__iterator__ = fn`), so
+// the assignment form is matched explicitly via a second branch.
+language js
+
+or {
+  `$o.__iterator__`,
+  `$o.__iterator__ = $v`
+} as $node where {
+  register_diagnostic(span=$node, message="Do not use the legacy `__iterator__` property; use the iteration protocol via `Symbol.iterator` instead.", severity="error")
+}

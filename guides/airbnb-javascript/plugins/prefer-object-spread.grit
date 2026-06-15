@@ -1,0 +1,17 @@
+// Airbnb JavaScript Style Guide — `prefer-object-spread`: prefer object spread
+// over `Object.assign` when the FIRST argument is an object LITERAL —
+// `Object.assign({}, foo)` → `{ ...foo }`, `Object.assign({ a: 1 }, bar)` →
+// `{ a: 1, ...bar }`. The discriminator is the first argument's shape: a literal
+// is a shallow-copy idiom that object spread expresses more clearly.
+//
+// STAYS SILENT on `Object.assign(target, source)` where the first arg is an
+// existing object (an identifier, not a literal): that is a deliberate mutation
+// of `target`, which object spread cannot replicate. The `$first <: `{ $... }``
+// guard binds only the first argument, so an object literal in any later
+// position (e.g. `Object.assign(target, { a: 1 })`) is likewise left alone.
+language js
+
+`Object.assign($first, $...)` as $call where {
+  $first <: `{ $... }`,
+  register_diagnostic(span=$call, message="Prefer object spread over `Object.assign` with an object literal, e.g. `{ ...foo }`.", severity="warn")
+}

@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `arrow-body-style` (mode `as-needed`): when an
+// arrow function's block body is JUST a single `return <expr>;`, omit the braces
+// and `return` and use a concise body (`(x) => x`, not `(x) => { return x; }`).
+//
+// The single-statement snippet below matches a block whose body is *exactly* one
+// return statement — Biome's CST treats the block body as a statement list, so
+// the snippet does NOT match a multi-statement block such as
+// `(x) => { doStuff(); return x; }` (verified against the CLI). Void blocks with
+// no return (`() => { doStuff(); }`) and concise bodies (`(x) => x`) never match.
+// `$params` binds empty, single, or multiple params alike, so all arity is covered.
+language js
+
+`($params) => { return $expr; }` as $node where {
+  register_diagnostic(span=$node, message="Arrow function with a single `return` should use a concise body: write `(x) => x`, not `(x) => { return x; }`.", severity="warn")
+}

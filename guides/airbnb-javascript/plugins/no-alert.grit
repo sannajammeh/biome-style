@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `no-alert`: avoid `alert`, `confirm`, and
+// `prompt`. These browser dialogs block the UI thread and read as placeholders
+// for a real UX. Snippets are callee-precise, so a bare `alert($...)` matches a
+// global `alert(...)` call but NOT a `window.alert(...)` / `obj.alert(...)`
+// member call — no explicit member-expression guard needed. This is purely
+// syntactic: there is no global-scope check.
+language js
+
+or {
+  `alert($...)`,
+  `confirm($...)`,
+  `prompt($...)`
+} as $call where {
+  register_diagnostic(span=$call, message="Unexpected `alert`, `confirm`, or `prompt`; avoid blocking browser dialogs.", severity="warn")
+}

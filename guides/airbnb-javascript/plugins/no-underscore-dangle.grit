@@ -1,0 +1,24 @@
+// Airbnb JavaScript Style Guide — `no-underscore-dangle`: do not use a leading
+// or trailing underscore on member property names (`this._private`, `obj._secret`,
+// `foo.bar_`). Ported as a SYNTACTIC SUBSET: this flags only the member-property
+// dangle (`$o.$prop` where `$prop` starts or ends with `_`). ESLint's rule has
+// many opts/exceptions (allow lists, `allowAfterThis`, `allowAfterSuper`,
+// `enforceInMethodNames`, etc.) and also covers identifier declarations — none of
+// those are ported (no options, no type info, single-file, syntax-only). Double
+// underscore dunders (`__proto__`) also match here, which is acceptable.
+//
+// Two snippet forms are required: the bare `$o.$prop` read form does not match a
+// member expression in assignment-target position (`foo.bar_ = 1`), so an explicit
+// assignment form is added. `$prop` only binds as a regexable identifier via a
+// backtick snippet; the `JsStaticMemberExpression(member=$prop)` node-kind form
+// rejects the regex guard. Regex alternation `(a|b)` fails to compile, so the
+// leading/trailing tests are split under `or { }` (per the GritQL gotchas doc).
+language js
+
+or {
+  `$o.$prop` as $node,
+  `$o.$prop = $rhs` as $node
+} where {
+  or { $prop <: r"^_.*", $prop <: r".*_$" },
+  register_diagnostic(span=$node, message="Do not dangle an underscore on a member property name (leading or trailing `_`), e.g. `obj._private` or `obj.value_`.", severity="warn")
+}
