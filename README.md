@@ -1,3 +1,11 @@
+```
+▓▓▓▓  ▓▓▓  ▓▓▓  ▓   ▓ ▓▓▓▓▓     ▓▓▓▓ ▓▓▓▓▓ ▓   ▓ ▓     ▓▓▓▓▓ 
+▓   ▓  ▓  ▓   ▓ ▓▓ ▓▓ ▓        ▓       ▓    ▓ ▓  ▓     ▓     
+▓▓▓▓   ▓  ▓   ▓ ▓ ▓ ▓ ▓▓▓▓      ▓▓▓    ▓     ▓   ▓     ▓▓▓▓  
+▓   ▓  ▓  ▓   ▓ ▓   ▓ ▓            ▓   ▓     ▓   ▓     ▓     
+▓▓▓▓  ▓▓▓  ▓▓▓  ▓   ▓ ▓▓▓▓▓    ▓▓▓▓    ▓     ▓   ▓▓▓▓▓ ▓▓▓▓▓ 
+```
+
 # biome-style
 
 Published coding style guides, ported into [Biome](https://biomejs.dev/) and enforced natively — no ESLint, no Prettier, no Closure tooling. Every enforceable directive is realized as a Biome **formatter** option, a Biome **built-in lint rule**, or a custom [**GritQL**](https://biomejs.dev/linter/plugins/) plugin (`.grit`).
