@@ -1,0 +1,27 @@
+// Airbnb JavaScript Style Guide — `prefer-destructuring`: prefer destructuring
+// over single-property member access in a variable declaration.
+//
+// SCOPE (safe syntactic subset of ESLint's rule, verified against Biome 2.4.16):
+//   (a) object — `const $x = $obj.$x`  →  `const { x } = obj`. The repeated
+//       metavariable `$x` is enforced as an EQUALITY constraint by Biome 2.4.16
+//       (confirmed via the CLI: `const a = obj.b` does NOT match, only the
+//       name-match `const same = obj.same` does), so this flags ONLY the case
+//       where the binding name equals the accessed property name — the case
+//       where destructuring is a faithful rewrite. Name-mismatch accesses
+//       (`const foo = obj.bar`), which ESLint also flags by default, are left
+//       silent on purpose: they are not a mechanical destructure.
+//   (b) array — `const $first = $arr[0]`  →  `const [first] = arr`. Matches a
+//       declaration initialised from the literal index `0` only; non-zero or
+//       computed indices (`arr[1]`, `arr[i]`) are not the head-element case and
+//       stay silent.
+//
+// Plugins are diagnostic-only (ADR-0001): no autofix. Severity `warn` mirrors
+// the guide's "prefer".
+language js
+
+or {
+  `const $x = $obj.$x`,
+  `const $first = $arr[0]`
+} as $node where {
+  register_diagnostic(span=$node, message="Prefer destructuring: write `const { x } = obj` instead of `const x = obj.x`, and `const [first] = arr` instead of `const first = arr[0]`.", severity="warn")
+}

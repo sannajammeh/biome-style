@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `no-return-await`: do not `return await` inside
+// an async function. `return await <expr>` adds an extra microtask tick without
+// changing behaviour — the surrounding async function already awaits the returned
+// promise — so return the promise directly (`return <expr>`). Awaiting before a
+// bare return (`const x = await f(); return x;`), returning without await, and a
+// standalone `await f();` statement are all correct and stay silent.
+language js
+
+// The bare `return await $expr` snippet compiles but never matches in Biome's
+// CST, so match the return statement and constrain its argument to an await
+// expression instead.
+`return $expr` as $node where {
+  $expr <: `await $inner`,
+  register_diagnostic(span=$node, message="Redundant `return await`; return the promise directly (`return <expr>`).", severity="error")
+}

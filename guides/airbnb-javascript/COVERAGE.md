@@ -22,7 +22,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 
 **Status**: `done` = implemented, wired into the dev config, covered by a passing harness test; `planned` = mechanism chosen, not yet wired; `n/a` = unenforceable.
 
-> `[opts]` in Notes means the config passes options ESLint-side; where Biome's equivalent can't replicate them, the row is flagged stricter/looser per the existing COVERAGE convention. All `builtin`/`plugin` rows are `planned` pending wiring + a harness test, and built-in option-fidelity is confirmed at that point.
+> `[opts]` in Notes means the config passes options ESLint-side; where Biome's equivalent can't replicate them, the row is flagged stricter/looser per the existing COVERAGE convention. Plugin rows are `done` (implemented + harness-tested); builtin rows are `planned` pending wiring + a harness test, and built-in option-fidelity is confirmed at that point.
 
 ---
 
@@ -32,7 +32,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | --- | --- | --- | --- | --- | --- | --- |
 | array-callback-return | error | unenforceable | — | — | n/a | Needs flow analysis (missing return on some path). |
 | block-scoped-var | error | unenforceable | — | — | n/a | Subsumed by `no-var` → `noVar`; scope-aware otherwise. |
-| class-methods-use-this | error | plugin | `plugins/class-methods-use-this.grit` | error | planned | Detect method bodies with no `this`; `[opts]` exceptMethods. Verify GritQL feasibility. |
+| class-methods-use-this | error | plugin | `plugins/class-methods-use-this.grit` | error | done | Flags a non-static method whose body has no `this` (`not contains` `this`); constructor/getter/setter are distinct CST kinds so excluded for free, static via a modifier guard. `[opts]` exceptMethods not ported. |
 | consistent-return | error | unenforceable | — | — | n/a | Flow analysis across all return paths. |
 | curly | error | builtin | `useBlockStatements` | error | planned | `[opts]` `multi-line`; Biome enforces blocks always (stricter). |
 | default-case | error | builtin | `useDefaultSwitchClause` | error | planned | `[opts]` comment escape hatch not replicable. |
@@ -41,43 +41,43 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | dot-location | error | formatter | (member-expression line break) | — | planned | `[opts]` property; handled by formatter layout. |
 | dot-notation | error | builtin | `useLiteralKeys` | error | planned | `[opts]` allowKeywords. |
 | eqeqeq | error | builtin | `noDoubleEquals` | error | planned | `[opts]` allow `== null`; Biome allows null compare by default. |
-| grouped-accessor-pairs | error | plugin | `plugins/grouped-accessor-pairs.grit` | error | planned | Adjacency of get/set for same key — syntactic. Verify feasibility. |
+| grouped-accessor-pairs | error | unenforceable | — | — | n/a | Single-file syntax-only GritQL (2.4.16) can match a same-key get/set pair (repeated `name=$key` metavariable across two `contains` clauses — verified), but cannot reason about member **adjacency**: the sequential operator `+>` and every list/dots pattern over the member sequence fail to compile, so a grouped pair and a separated pair are indistinguishable. Needs an ordering-aware engine. |
 | guard-for-in | error | builtin | `useGuardForIn` | error | planned | |
 | max-classes-per-file | error | unenforceable | — | — | n/a | `[opts]` count; per-file counting not expressible in single-file GritQL. |
-| no-alert | warn | plugin | `plugins/no-alert.grit` | warn | planned | Detect `alert`/`confirm`/`prompt` calls. No global-scope check (syntactic). |
-| no-caller | error | plugin | `plugins/no-caller.grit` | error | planned | `arguments.caller`/`arguments.callee`. Partly subsumed by `prefer-rest-params`→`noArguments`. |
+| no-alert | warn | plugin | `plugins/no-alert.grit` | warn | done | Detect `alert`/`confirm`/`prompt` calls. No global-scope check (syntactic). |
+| no-caller | error | plugin | `plugins/no-caller.grit` | error | done | `arguments.caller`/`arguments.callee`. Partly subsumed by `prefer-rest-params`→`noArguments`. |
 | no-case-declarations | error | builtin | `noSwitchDeclarations` | error | planned | |
 | no-constructor-return | error | builtin | `noConstructorReturn` | error | planned | |
 | no-else-return | error | builtin | `noUselessElse` | error | planned | `[opts]` allowElseIf. |
 | no-empty-function | error | builtin | `noEmptyBlockStatements` | error | planned | `[opts]` allow; Biome rule covers all empty blocks (looser/broader). |
 | no-empty-pattern | error | builtin | `noEmptyPattern` | error | planned | |
 | no-eval | error | builtin | `noGlobalEval` | error | planned | |
-| no-extend-native | error | plugin | `plugins/no-extend-native.grit` | error | planned | Assignment to `X.prototype`; needs known-native list (option/caveat). |
+| no-extend-native | error | plugin | `plugins/no-extend-native.grit` | error | done | Assignment to `X.prototype`; needs known-native list (option/caveat). |
 | no-extra-bind | error | unenforceable | — | — | n/a | Needs to prove `this` unused in bound fn. |
 | no-extra-label | error | builtin | `noUselessLabel` | error | planned | |
 | no-fallthrough | error | builtin | `noFallthroughSwitchClause` | error | planned | |
-| no-floating-decimal | error | plugin | `plugins/no-floating-decimal.grit` | error | planned | Leading/trailing dot in numeric literal — syntactic. Biome formatter does not add the zero. |
+| no-floating-decimal | error | plugin | `plugins/no-floating-decimal.grit` | error | done | Leading/trailing dot in numeric literal — syntactic. Biome formatter does not add the zero. |
 | no-global-assign | error | builtin | `noGlobalAssign` | error | planned | `[opts]` exceptions. |
-| no-implied-eval | error | plugin | `plugins/no-implied-eval.grit` | error | planned | `setTimeout`/`setInterval` with string arg — syntactic subset only. |
-| no-iterator | error | plugin | `plugins/no-iterator.grit` | error | planned | `__iterator__` property access. |
+| no-implied-eval | error | plugin | `plugins/no-implied-eval.grit` | error | done | `setTimeout`/`setInterval` with string arg — syntactic subset only. |
+| no-iterator | error | plugin | `plugins/no-iterator.grit` | error | done | `__iterator__` property access. |
 | no-labels | error | builtin | `noConfusingLabels` | error | planned | `[opts]` allowLoop/allowSwitch; Biome rule narrower (confusing labels). Flag looser. |
 | no-lone-blocks | error | builtin | `noUselessLoneBlockStatements` | error | planned | |
 | no-loop-func | error | unenforceable | — | — | n/a | Needs closure/scope capture analysis. |
 | no-multi-spaces | error | formatter | (whitespace normalization) | — | planned | `[opts]` ignoreEOLComments. |
-| no-multi-str | error | plugin | `plugins/no-multi-str.grit` | error | planned | Multiline string via `\` line continuation. Mirrors Google's `no-multiline-string` (duplicated per ADR-0002). |
-| no-new | error | plugin | `plugins/no-new.grit` | error | planned | `new` as an expression statement (result discarded). |
-| no-new-func | error | plugin | `plugins/no-new-func.grit` | error | planned | `new Function(...)` / `Function(...)`. |
+| no-multi-str | error | plugin | `plugins/no-multi-str.grit` | error | done | Multiline string via `\` line continuation. Mirrors Google's `no-multiline-string` (duplicated per ADR-0002). |
+| no-new | error | plugin | `plugins/no-new.grit` | error | done | `new` as an expression statement (result discarded). |
+| no-new-func | error | plugin | `plugins/no-new-func.grit` | error | done | `new Function(...)` / `Function(...)`. |
 | no-new-wrappers | error | builtin | `useConsistentBuiltinInstantiation` | error | planned | `new Number/String/Boolean`. |
 | no-nonoctal-decimal-escape | error | builtin | `noNonoctalDecimalEscape` | error | planned | |
 | no-octal | error | unenforceable | — | — | n/a | Legacy `0123` literals are a syntax error in module/strict mode (airbnb is module). |
 | no-octal-escape | error | builtin | `noOctalEscape` | error | planned | |
 | no-param-reassign | error | builtin | `noParameterAssign` | error | planned | `[opts]` props; Biome rule does not do the prop-mutation variant. Flag looser. |
-| no-proto | error | plugin | `plugins/no-proto.grit` | error | planned | `__proto__` property access. |
+| no-proto | error | plugin | `plugins/no-proto.grit` | error | done | `__proto__` property access. |
 | no-redeclare | error | builtin | `noRedeclare` | error | planned | |
 | no-restricted-properties | error | unenforceable | — | — | n/a | `[opts]` project-specific object/property blacklist. |
 | no-return-assign | error | builtin | `noAssignInExpressions` | error | planned | `[opts]` always; Biome rule is broader (any assignment in expression). Flag stricter. |
-| no-return-await | error | plugin | `plugins/no-return-await.grit` | error | planned | `return await` — syntactic. (Rule deprecated upstream; ported as-is.) |
-| no-script-url | error | plugin | `plugins/no-script-url.grit` | error | planned | `javascript:` URL string literals — regex on string text. |
+| no-return-await | error | plugin | `plugins/no-return-await.grit` | error | done | `return await` — syntactic. (Rule deprecated upstream; ported as-is.) |
+| no-script-url | error | plugin | `plugins/no-script-url.grit` | error | done | `javascript:` URL string literals — regex on string text. |
 | no-self-assign | error | builtin | `noSelfAssign` | error | planned | `[opts]` props. |
 | no-self-compare | error | builtin | `noSelfCompare` | error | planned | |
 | no-sequences | error | builtin | `noCommaOperator` | error | planned | `[opts]` allowInParentheses; Biome stricter. |
@@ -92,9 +92,9 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | no-with | error | builtin | `noWith` | error | planned | |
 | prefer-promise-reject-errors | error | unenforceable | — | — | n/a | Needs to prove the reject value is an Error (semantic). |
 | prefer-regex-literals | error | builtin | `useRegexLiterals` | error | planned | |
-| radix | error | plugin | `plugins/radix.grit` | error | planned | Airbnb `radix` is mode `always` → flag `parseInt(x)` with no radix. **Opposite of** Google's `no-parseint-base10` (which bans `parseInt(x, 10)`); authored fresh, not reused. |
+| radix | error | plugin | `plugins/radix.grit` | error | done | Airbnb `radix` is mode `always` → flag `parseInt(x)` with no radix. **Opposite of** Google's `no-parseint-base10` (which bans `parseInt(x, 10)`); authored fresh, not reused. |
 | vars-on-top | error | unenforceable | — | — | n/a | Hoisting/ordering across a scope. Largely moot under `no-var`. |
-| wrap-iife | error | plugin | `plugins/wrap-iife.grit` | error | planned | `[opts]` outside; parens placement around IIFE. |
+| wrap-iife | error | plugin | `plugins/wrap-iife.grit` | error | done | `[opts]` outside; parens placement around IIFE. |
 | yoda | error | builtin | `noYodaExpression` | error | planned | `[opts]` exceptRange. |
 
 ## errors
@@ -104,7 +104,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | for-direction | error | builtin | `useValidForDirection` | error | planned | |
 | getter-return | error | builtin | `useGetterReturn` | error | planned | `[opts]` allowImplicit. |
 | no-async-promise-executor | error | builtin | `noAsyncPromiseExecutor` | error | planned | |
-| no-await-in-loop | error | plugin | `plugins/no-await-in-loop.grit` | error | planned | `await` lexically inside a loop body — syntactic. |
+| no-await-in-loop | error | plugin | `plugins/no-await-in-loop.grit` | error | done | `await` lexically inside a loop body — syntactic. |
 | no-compare-neg-zero | error | builtin | `noCompareNegZero` | error | planned | |
 | no-cond-assign | error | builtin | `noAssignInExpressions` | error | planned | `[opts]` always; Biome rule is broader. |
 | no-console | warn | builtin | `noConsole` | warn | planned | |
@@ -148,33 +148,33 @@ This matrix classifies **every rule enabled by the source config** into the mech
 
 | Rule | Lvl | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| arrow-body-style | error | plugin | `plugins/arrow-body-style.grit` | warn | planned | `[opts]` as-needed. Stylistic → downgraded to warn. Verify feasibility. |
+| arrow-body-style | error | plugin | `plugins/arrow-body-style.grit` | warn | done | `[opts]` as-needed: flags an arrow whose block body is a single `return`; multi-statement blocks correctly stay silent. Stylistic → downgraded to warn. |
 | arrow-parens | error | formatter | `arrowParentheses` | — | planned | `[opts]` as-needed → `arrowParentheses: "asNeeded"`. |
 | arrow-spacing | error | formatter | (whitespace) | — | planned | |
 | constructor-super | error | builtin | `noInvalidConstructorSuper` | error | planned | |
 | generator-star-spacing | error | formatter | (whitespace) | — | planned | |
 | no-class-assign | error | builtin | `noClassAssign` | error | planned | |
-| no-confusing-arrow | error | plugin | `plugins/no-confusing-arrow.grit` | warn | planned | `noConfusingArrow` absent in 2.4.16 (confirmed). Arrow whose body reads as a comparison (`a => b ? c : d`). `[opts]` allowParens. Stylistic → warn. Verify feasibility. |
+| no-confusing-arrow | error | plugin | `plugins/no-confusing-arrow.grit` | warn | done | `noConfusingArrow` absent in 2.4.16 (confirmed). Flags an arrow whose body is an unparenthesized conditional (`a => b ? c : d`). `[opts]` allowParens **honored** — a parenthesized body is a distinct CST node (`JsParenthesizedExpression`), so `a => (b ? c : d)` stays silent. Stylistic → warn. |
 | no-const-assign | error | builtin | `noConstAssign` | error | planned | |
 | no-dupe-class-members | error | builtin | `noDuplicateClassMembers` | error | planned | |
 | no-new-symbol | error | builtin | `noInvalidBuiltinInstantiation` | error | planned | `noNewSymbol` absent in 2.4.16; `new Symbol()` is covered by `noInvalidBuiltinInstantiation`. Verify coverage. |
 | no-restricted-exports | error | unenforceable | — | — | n/a | `[opts]` project-specific export-name blacklist. |
 | no-this-before-super | error | builtin | `noUnreachableSuper` | error | planned | |
-| no-useless-computed-key | error | plugin | `plugins/no-useless-computed-key.grit` | error | planned | `noUselessComputedKey` absent in 2.4.16 (confirmed). Computed key that is a literal (`{['a']: 1}`). `[opts]` enforceForClassMembers. Verify feasibility. |
+| no-useless-computed-key | error | plugin | `plugins/no-useless-computed-key.grit` | error | done | `noUselessComputedKey` absent in 2.4.16 (confirmed). Flags a computed key that is a string/number literal (`{['a']: 1}`) via `JsComputedMemberName`; dynamic keys stay silent. `[opts]` enforceForClassMembers **covered** (the node fires on object + all class-member positions). |
 | no-useless-constructor | error | builtin | `noUselessConstructor` | error | planned | |
 | no-useless-rename | error | builtin | `noUselessRename` | error | planned | |
 | no-var | error | builtin | `noVar` | error | planned | |
-| object-shorthand | error | plugin | `plugins/object-shorthand.grit` | warn | planned | `[opts]` always + avoidQuotes. Stylistic → warn. Verify feasibility. |
+| object-shorthand | error | plugin | `plugins/object-shorthand.grit` | warn | done | `[opts]` always + avoidQuotes: flags longhand `{ x: x }` (repeated-metavariable equality + identifier guard) and `{ m: function () {} }`. Named function-expression values not covered (distinct CST shape). Stylistic → warn. |
 | prefer-arrow-callback | error | builtin | `useArrowFunction` | warn | planned | `[opts]` allowNamedFunctions. **Airbnb enables `useArrowFunction`** — opposite of the Google port. Stylistic → warn. |
 | prefer-const | error | builtin | `useConst` | error | planned | `[opts]` destructuring all. |
-| prefer-destructuring | error | plugin | `plugins/prefer-destructuring.grit` | warn | planned | `[opts]`. Stylistic → warn. Verify feasibility (fiddly). |
+| prefer-destructuring | error | plugin | `plugins/prefer-destructuring.grit` | warn | done | `[opts]`: flags name-matched object access `const x = obj.x` (repeated-metavariable equality) and literal-zero array access `const first = arr[0]`. Stylistic → warn. |
 | prefer-numeric-literals | error | builtin | `useNumericLiterals` | error | planned | |
 | prefer-rest-params | error | builtin | `noArguments` | error | planned | Biome bans `arguments` outright (broader). |
-| prefer-spread | error | plugin | `plugins/prefer-spread.grit` | warn | planned | `.apply()` → spread. Syntactic subset only. Stylistic → warn. |
+| prefer-spread | error | plugin | `plugins/prefer-spread.grit` | warn | done | `.apply()` → spread. Syntactic subset only. Stylistic → warn. |
 | prefer-template | error | builtin | `useTemplate` | error | planned | |
 | require-yield | error | builtin | `useYield` | error | planned | |
 | rest-spread-spacing | error | formatter | (whitespace) | — | planned | |
-| symbol-description | error | plugin | `plugins/symbol-description.grit` | error | planned | `Symbol()` called with no description argument. |
+| symbol-description | error | plugin | `plugins/symbol-description.grit` | error | done | `Symbol()` called with no description argument. |
 | template-curly-spacing | error | formatter | (whitespace) | — | planned | |
 | yield-star-spacing | error | formatter | (whitespace) | — | planned | |
 
@@ -183,8 +183,8 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | Rule | Lvl | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | global-require | error | unenforceable | — | — | n/a | Requires scope/placement analysis; CommonJS-specific. |
-| no-buffer-constructor | error | plugin | `plugins/no-buffer-constructor.grit` | error | planned | `new Buffer(...)` / `Buffer(...)`. |
-| no-new-require | error | plugin | `plugins/no-new-require.grit` | error | planned | `new require(...)`. |
+| no-buffer-constructor | error | plugin | `plugins/no-buffer-constructor.grit` | error | done | `new Buffer(...)` / `Buffer(...)`. |
+| no-new-require | error | plugin | `plugins/no-new-require.grit` | error | done | `new require(...)`. |
 | no-path-concat | error | unenforceable | — | — | n/a | Semantic (`__dirname`/`__filename` string concat with separators). |
 
 ## strict
@@ -207,7 +207,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | computed-property-spacing | error | formatter | (whitespace) | — | planned | |
 | eol-last | error | formatter | (final newline) | — | planned | |
 | func-call-spacing | error | formatter | (whitespace) | — | planned | |
-| func-names | warn | plugin | `plugins/func-names.grit` | warn | planned | Require named function expressions. Syntactic. |
+| func-names | warn | plugin | `plugins/func-names.grit` | warn | done | Require named function expressions. Syntactic. |
 | function-call-argument-newline | error | formatter | (layout) | — | planned | Biome's layout differs; partial. |
 | function-paren-newline | error | formatter | (layout) | — | planned | |
 | implicit-arrow-linebreak | error | formatter | (layout) | — | planned | |
@@ -218,25 +218,25 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | lines-around-directive | error | unenforceable | — | — | n/a | Blank line around directive prologues; not a formatter option. |
 | lines-between-class-members | error | unenforceable | — | — | n/a | `[opts]`; blank-line-between-members not a Biome formatter option/rule in 2.4.16. |
 | max-len | error | formatter | `lineWidth` | — | planned | `[opts]` 100 → `lineWidth: 100`. Formatter wraps but won't hard-error unbreakable long lines (URLs/strings); partial. |
-| new-cap | error | plugin | `plugins/new-cap.grit` | error | planned | `[opts]` newIsCap/capIsNew. Constructor-name casing — syntactic subset. |
-| new-parens | error | plugin | `plugins/new-parens.grit` | error | planned | Mirrors Google's `new-parens` (duplicated per ADR-0002). |
+| new-cap | error | plugin | `plugins/new-cap.grit` | error | done | `[opts]` newIsCap/capIsNew. Constructor-name casing — syntactic subset. |
+| new-parens | error | plugin | `plugins/new-parens.grit` | error | done | Mirrors Google's `new-parens` (duplicated per ADR-0002). |
 | newline-per-chained-call | error | formatter | (chain layout) | — | planned | `[opts]`; Biome's chain breaking is lineWidth-driven, differs. |
 | no-array-constructor | error | builtin | `useArrayLiterals` | error | planned | |
-| no-bitwise | error | plugin | `plugins/no-bitwise.grit` | warn | planned | Bitwise operators. Stylistic → warn. |
-| no-continue | error | plugin | `plugins/no-continue.grit` | warn | planned | `continue` statements. Stylistic → warn. |
+| no-bitwise | error | plugin | `plugins/no-bitwise.grit` | warn | done | Bitwise operators. Stylistic → warn. |
+| no-continue | error | plugin | `plugins/no-continue.grit` | warn | done | `continue` statements. Stylistic → warn. |
 | no-lonely-if | error | builtin | `useCollapsedElseIf` | error | planned | |
 | no-mixed-operators | error | unenforceable | — | — | n/a | `[opts]`; precedence-grouping analysis, fiddly/low-value in syntax-only GritQL. |
 | no-mixed-spaces-and-tabs | error | formatter | `indentStyle` | — | planned | |
-| no-multi-assign | error | plugin | `plugins/no-multi-assign.grit` | error | planned | Chained assignment `a = b = c`. |
+| no-multi-assign | error | plugin | `plugins/no-multi-assign.grit` | error | done | Chained assignment `a = b = c`. |
 | no-multiple-empty-lines | error | formatter | (blank-line collapsing) | — | planned | `[opts]` max:1; formatter collapses blank lines. |
 | no-nested-ternary | error | builtin | `noNestedTernary` | error | planned | |
-| no-new-object | error | plugin | `plugins/no-new-object.grit` | error | planned | `noObjectConstructor` absent in 2.4.16. ESLint `no-new-object` flags only `new Object()` (≈ Google's `no-object-constructor`, trimmed: Airbnb does not flag a bare `Object()` call). |
-| no-plusplus | error | plugin | `plugins/no-plusplus.grit` | warn | planned | `++`/`--`. Stylistic → warn. |
+| no-new-object | error | plugin | `plugins/no-new-object.grit` | error | done | `noObjectConstructor` absent in 2.4.16. ESLint `no-new-object` flags only `new Object()` (≈ Google's `no-object-constructor`, trimmed: Airbnb does not flag a bare `Object()` call). |
+| no-plusplus | error | plugin | `plugins/no-plusplus.grit` | warn | done | `++`/`--`. Stylistic → warn. |
 | no-restricted-syntax | error | unenforceable | — | — | n/a | `[opts]` generic AST-selector blacklist (bans `for-in`/`for-of`/labels/`with`); the concrete targets are covered by other rows. |
 | no-spaced-func | error | formatter | (whitespace) | — | planned | Deprecated alias of `func-call-spacing`. |
 | no-tabs | error | formatter | `indentStyle` | — | planned | |
 | no-trailing-spaces | error | formatter | (whitespace) | — | planned | `[opts]`. |
-| no-underscore-dangle | error | plugin | `plugins/no-underscore-dangle.grit` | warn | planned | `[opts]` many exceptions. Identifier naming — syntactic. Stylistic → warn. |
+| no-underscore-dangle | error | plugin | `plugins/no-underscore-dangle.grit` | warn | done | `[opts]` many exceptions. Identifier naming — syntactic. Stylistic → warn. |
 | no-unneeded-ternary | error | builtin | `noUselessTernary` | error | planned | `[opts]` defaultAssignment. |
 | no-whitespace-before-property | error | formatter | (whitespace) | — | planned | |
 | nonblock-statement-body-position | error | formatter | (layout) | — | planned | Subsumed in practice by `curly` → `useBlockStatements` (blocks always). |
@@ -249,7 +249,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | operator-linebreak | error | formatter | (layout) | — | planned | `[opts]`. |
 | padded-blocks | error | formatter | (blank-line trimming) | — | planned | `[opts]`. |
 | prefer-exponentiation-operator | error | builtin | `useExponentiationOperator` | error | planned | |
-| prefer-object-spread | error | plugin | `plugins/prefer-object-spread.grit` | warn | planned | `Object.assign({}, …)` → spread. Stylistic → warn. |
+| prefer-object-spread | error | plugin | `plugins/prefer-object-spread.grit` | warn | done | `Object.assign({}, …)` → spread. Stylistic → warn. |
 | quote-props | error | formatter | `quoteProperties` | — | planned | `[opts]` as-needed → `quoteProperties: "asNeeded"`. |
 | quotes | error | formatter | `quoteStyle` | — | planned | `[opts]` single → `quoteStyle: "single"`, avoidEscape default. |
 | semi | error | formatter | `semicolons` | — | planned | `[opts]` always → `semicolons: "always"`. |
@@ -269,7 +269,7 @@ This matrix classifies **every rule enabled by the source config** into the mech
 
 | Rule | Lvl | Mechanism | Biome rule / option / plugin | Sev | Status | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| no-delete-var | error | plugin | `plugins/no-delete-var.grit` | error | planned | `delete` of a bare identifier — syntactic. (Syntax error in strict mode anyway; ported for completeness.) |
+| no-delete-var | error | plugin | `plugins/no-delete-var.grit` | error | done | `delete` of a bare identifier — syntactic. (Syntax error in strict mode anyway; ported for completeness.) |
 | no-label-var | error | builtin | `noLabelVar` | error | planned | |
 | no-restricted-globals | error | builtin | `noRestrictedGlobals` | error | planned | `[opts]` airbnb's specific global list (`isFinite`, `isNaN`, browser globals via `confusing-browser-globals`). Carry the list in shared config. |
 | no-shadow | error | builtin | `noShadow` | error | planned | Verify stability/availability in 2.4.16 (may be `nursery`). |
@@ -287,10 +287,10 @@ This matrix classifies **every rule enabled by the source config** into the mech
 | --- | --- |
 | `builtin` | 103 |
 | `formatter` | 52 |
-| `plugin` | 37 |
-| `unenforceable` | 26 |
+| `plugin` | 36 |
+| `unenforceable` | 27 |
 | **Total** | **218** |
 
-> Biome's built-in coverage of ESLint core correctness rules is strong, so the port skews heavily to `builtin` (≈47%, 101 distinct Biome rules) — a different shape from the Google port. Of the 37 plugin candidates, 12 are downgraded to `warn` as purely stylistic; the rest stay at the config's `error`.
+> Biome's built-in coverage of ESLint core correctness rules is strong, so the port skews heavily to `builtin` (≈47%, 101 distinct Biome rules) — a different shape from the Google port. Of the 36 plugin rules, 12 are downgraded to `warn` as purely stylistic; the rest stay at the config's `error`. One feasibility-spike candidate, `grouped-accessor-pairs`, reclassified to `unenforceable` (member adjacency is not expressible in single-file syntax-only GritQL); the other 8 spikes (incl. `object-shorthand` and `prefer-destructuring`, which rely on repeated-metavariable equality, and `no-confusing-arrow`, which honors `allowParens` because parentheses are a distinct CST node) proved feasible and shipped.
 
-> Counts are a first-pass classification, not yet verified by wiring. Plugin rows marked "verify feasibility" need a real GritQL spike on Biome 2.4.16 before promotion; builtin rows are `planned` until enabled in the shared config and covered by a harness test. Plugins reusing Google logic (duplicated per ADR-0002): `new-parens` (exact) and `no-multi-str` (≈ Google's `no-multiline-string`); `no-new-object` is a trimmed `no-object-constructor`. `radix` is authored fresh — Airbnb's `radix: always` is the **opposite** of Google's `no-parseint-base10`.
+> All 36 plugin rows are now `done` — implemented, harness-tested, and included in the generated `all.grit` bundle (covered by the bundle-liveness test). Builtin rows remain `planned` until enabled in the shared config and covered by a harness test. Plugins reusing Google logic (duplicated per ADR-0002): `new-parens` (exact) and `no-multi-str` (≈ Google's `no-multiline-string`); `no-new-object` is a trimmed `no-object-constructor`. `radix` is authored fresh — Airbnb's `radix: always` is the **opposite** of Google's `no-parseint-base10`.

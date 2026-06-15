@@ -1,0 +1,16 @@
+// Airbnb JavaScript Style Guide — `no-delete-var`: never `delete` a variable.
+// `delete` is for object properties (`delete obj.prop`, `delete obj['key']`),
+// which stay silent; applying it to a bare identifier is flagged. The lone
+// `delete $x` snippet also matches member-expression operands, so the two
+// member-access shapes are excluded with `not` guards on `$x`.
+//
+// NOTE: a bare `delete x` is a parse error in strict mode (ES modules), so the
+// flagged form only exists — and is only matchable — in a script (sloppy mode).
+// The fixtures are therefore `.cjs`, which Biome parses as a script.
+language js
+
+`delete $x` as $node where {
+  $x <: not `$o.$p`,
+  $x <: not `$o[$k]`,
+  register_diagnostic(span=$node, message="Do not delete variables; `delete` is only for object properties.", severity="error")
+}

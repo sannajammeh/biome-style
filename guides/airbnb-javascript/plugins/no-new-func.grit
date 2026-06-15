@@ -1,0 +1,13 @@
+// Airbnb JavaScript Style Guide — `no-new-func`: never use the `Function`
+// constructor to build a function from a string. Flags BOTH `new Function(...)`
+// and a bare call `Function(...)`, mirroring ESLint's `no-new-func`. Snippets
+// are callee-precise, so `Function.prototype` (a member expression) does not
+// match the bare `Function($...)` call pattern.
+language js
+
+or {
+  `new Function($...)`,
+  `Function($...)`
+} as $call where {
+  register_diagnostic(span=$call, message="Never use the `Function` constructor to create functions from strings; declare the function directly.", severity="error")
+}

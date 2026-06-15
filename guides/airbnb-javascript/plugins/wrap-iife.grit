@@ -1,0 +1,19 @@
+// Airbnb JavaScript Style Guide — `wrap-iife` (option `outside`): wrap an
+// Immediately-Invoked Function Expression so the CALL is INSIDE the wrapping
+// parentheses — the correct form is `(function () { ... }())`. This flags the
+// `outside` violation where the call parens sit OUTSIDE the wrapper
+// (`(function () { ... })()`), i.e. the function is parenthesized and then
+// called. Biome's CST distinguishes the two: only the call-outside form is a
+// call whose callee is a parenthesized function/arrow expression. The guard
+// restricts `$f` to a function or arrow so ordinary parenthesized callees
+// (`(foo.bar)()`, `(getFn())()`) stay silent.
+language js
+
+`($f)($...)` as $node where {
+  or {
+    $f <: `function $name($fnargs) { $fnbody }`,
+    $f <: `function ($fnargs) { $fnbody }`,
+    $f <: `$params => $arrowbody`
+  },
+  register_diagnostic(span=$node, message="Wrap the entire invoked function in parentheses so the call is inside: write `(function () { ... }())`, not `(function () { ... })()`.", severity="error")
+}

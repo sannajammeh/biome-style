@@ -1,0 +1,31 @@
+// Airbnb JavaScript Style Guide — `no-extend-native`: never extend the prototype
+// of a native built-in object. Flags assignment to a known native's `.prototype`
+// member, e.g. `Array.prototype.foo = ...`, `Object.prototype.bar = function () {}`.
+// Extending your OWN classes' prototypes (`MyClass.prototype.method = ...`) and
+// ordinary property assignment stay silent.
+//
+// Known-native list (matched literally, no type info): Object, Array, String,
+// Number, Boolean, Function, Date, RegExp, Error, Map, Set, Symbol, Promise.
+//
+// A bare `<Native>.prototype.$p` member-access snippet does not match when it is
+// the LHS of an assignment, so the ASSIGNMENT shape is matched directly:
+// `<Native>.prototype.$p = $v` — one alternative per native under `or { }`.
+language js
+
+or {
+  `Object.prototype.$p = $v`,
+  `Array.prototype.$p = $v`,
+  `String.prototype.$p = $v`,
+  `Number.prototype.$p = $v`,
+  `Boolean.prototype.$p = $v`,
+  `Function.prototype.$p = $v`,
+  `Date.prototype.$p = $v`,
+  `RegExp.prototype.$p = $v`,
+  `Error.prototype.$p = $v`,
+  `Map.prototype.$p = $v`,
+  `Set.prototype.$p = $v`,
+  `Symbol.prototype.$p = $v`,
+  `Promise.prototype.$p = $v`
+} as $assign where {
+  register_diagnostic(span=$assign, message="Do not extend the prototype of a native built-in; subclass it or use a helper function instead.", severity="error")
+}

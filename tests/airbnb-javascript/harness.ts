@@ -23,7 +23,13 @@
  * therefore what lets the dogfood config ignore these intentionally
  * guide-violating fixtures (a nested tests dir cannot be negated in 2.4.16).
  */
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 
@@ -58,7 +64,19 @@ function pluginPath(rule: string): string {
 }
 
 function fixturePath(rule: string, fixture: Fixture): string {
-  return join(TESTS_DIR, 'fixtures', rule, `${fixture}.js`);
+  // Default to `.js`. Rules whose violations only parse in script (sloppy) mode
+  // — e.g. `delete x` on a bare identifier, a parse error in an ES module —
+  // ship `.cjs` fixtures, which Biome parses as a script. Fall back to `.cjs`
+  // when the `.js` fixture is absent so the harness stays one-extension-per-rule.
+  const js = join(TESTS_DIR, 'fixtures', rule, `${fixture}.js`);
+  if (existsSync(js)) {
+    return js;
+  }
+  const cjs = join(TESTS_DIR, 'fixtures', rule, `${fixture}.cjs`);
+  if (existsSync(cjs)) {
+    return cjs;
+  }
+  return js;
 }
 
 /** Absolute path to a rule's fixture — public wrapper around `fixturePath`. */

@@ -1,0 +1,15 @@
+// Airbnb JavaScript Style Guide — `no-implied-eval`: never pass a string to a
+// timer; it is evaluated like `eval`. Flags `setTimeout`/`setInterval` whose
+// FIRST argument is a string literal (`setTimeout("doStuff()", 100)`). This is a
+// syntactic subset of ESLint's rule (string-literal first arg only, no taint
+// tracking). A function first argument — arrow, function expression, or a bare
+// identifier reference — is the correct form and stays silent.
+language js
+
+or {
+  `setTimeout($first, $...)`,
+  `setInterval($first, $...)`
+} as $call where {
+  $first <: string(),
+  register_diagnostic(span=$call, message="Do not pass a string to `setTimeout`/`setInterval` (implied eval); pass a function instead.", severity="error")
+}

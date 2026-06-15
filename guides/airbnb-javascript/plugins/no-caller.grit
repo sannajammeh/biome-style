@@ -1,0 +1,12 @@
+// Airbnb JavaScript Style Guide — `no-caller`: never use `arguments.caller` or
+// `arguments.callee`. They are deprecated, prohibited in strict mode, and defeat
+// engine optimizations. Other `arguments` uses (`arguments.length`,
+// `arguments[0]`) are fine and stay silent.
+language js
+
+or {
+  `arguments.callee`,
+  `arguments.caller`
+} as $node where {
+  register_diagnostic(span=$node, message="Do not use `arguments.caller` or `arguments.callee`; they are deprecated and forbidden in strict mode.", severity="error")
+}

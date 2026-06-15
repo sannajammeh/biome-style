@@ -1,0 +1,27 @@
+// Airbnb JavaScript Style Guide — `object-shorthand` (opts `always`, `avoidQuotes`):
+// prefer ES2015 shorthand for object properties and methods. This is a PARTIAL
+// port covering the two syntactic sub-cases the engine can express precisely:
+//
+//   (a) longhand property whose key name equals its value identifier —
+//       `{ x: x }` should be `{ x }`. Relies on GritQL repeated-metavariable
+//       equality (the same `$x` used as both key and value binds only when the
+//       two positions are identical — verified against the 2.4.16 CLI). The
+//       value is guarded `JsIdentifierExpression()` so quoted/numeric-keyed
+//       lookalikes (`{ 'q': 'q' }`, `{ 1: 1 }`) — never valid shorthand, and
+//       excluded by `avoidQuotes` regardless — stay silent.
+//   (b) method written as a function-expression property —
+//       `{ m: function () {} }` should be the concise method `{ m() {} }`.
+//
+// Deliberately silent (matches ESLint `object-shorthand` under `always`):
+// already-shorthand `{ x }` / `{ m() {} }`, genuinely-different `{ a: b }`, and
+// arrow-valued properties `{ f: () => {} }` (the rule does not convert arrows to
+// methods). Not covered: NAMED function expressions (`{ m: function n() {} }`),
+// a different CST shape that this snippet does not match.
+language js
+
+or {
+  `$x: $x` where { $x <: JsIdentifierExpression() },
+  `$k: function($...) { $... }`
+} as $node where {
+  register_diagnostic(span=$node, message="Use object shorthand: write `{ x }` for `{ x: x }` and `{ m() {} }` for `{ m: function () {} }`.", severity="warn")
+}

@@ -1,0 +1,10 @@
+// Airbnb JavaScript Style Guide — `no-new-require`: do not use `new` on the
+// result of a CommonJS `require(...)` call (`new require('foo')`). The expected
+// form is `const Foo = require('foo'); const f = new Foo();`. A plain
+// `require('foo')` and `new Foo(require('foo'))` (require as a constructor
+// argument) are correct and stay silent.
+language js
+
+`new require($...)` as $node where {
+  register_diagnostic(span=$node, message="Do not use `new` on the result of a `require(...)` call; require the module first, then construct it.", severity="error")
+}

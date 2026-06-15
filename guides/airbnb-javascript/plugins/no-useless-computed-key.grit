@@ -1,0 +1,21 @@
+// Airbnb JavaScript Style Guide — `no-useless-computed-key` (with
+// `enforceForClassMembers`): a computed key whose expression is a plain string
+// or number literal is pointless — write `{ a: 1 }` not `{ ['a']: 1 }`, and
+// `{ 0: x }` not `{ [0]: x }`. The same applies to class members:
+// `class C { ['foo']() {} }` should be `class C { foo() {} }`.
+//
+// Matched via the `JsComputedMemberName` CST node (the `[ … ]` key in an object
+// member or class member) with a string/number literal guard. This node covers
+// every member position the rule cares about — object properties AND all class
+// members (methods, getters/setters, async, generators, fields, static) — which
+// is why it is preferred over backtick snippets like `[$k]: $v` / `[$k]() {}`
+// (those miss get/set/generator/field/static class members). Genuinely-dynamic
+// keys (`[myVar]`, `[a + b]`) fail the literal guard and stay silent, and
+// non-computed keys (`{ a: 1 }`) are a different node entirely. Computed member
+// *access* (`obj['a']`, `arr[0]`) is a distinct CST node and is not matched.
+language js
+
+JsComputedMemberName(expression=$k) as $node where {
+  or { $k <: string(), $k <: number() },
+  register_diagnostic(span=$node, message="Unnecessary computed key; a string or number literal key need not be computed — write `a` / `0`, not `['a']` / `[0]`.", severity="error")
+}
